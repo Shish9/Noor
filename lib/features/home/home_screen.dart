@@ -8,8 +8,6 @@ import '../../core/l10n/translations.dart';
 import '../../core/state/quran_state.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_typography.dart';
-import '../../core/widgets/glass_card.dart';
-import '../../core/widgets/section_header.dart';
 import 'widgets/continue_reading_card.dart';
 import 'widgets/daily_ayah_card.dart';
 import 'widgets/daily_dua_card.dart';
@@ -34,93 +32,78 @@ class HomeScreen extends StatelessWidget {
           // Greeting header
           const _GreetingHeader().animate().fadeIn(duration: 500.ms),
 
-          const SizedBox(height: 14),
+          const SizedBox(height: 20),
 
-          // Streak widget
+          // Next prayer hero
           const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 20),
-            child: StreakWidget(),
-          ).animate().fadeIn(duration: 500.ms, delay: 80.ms).slideY(begin: 0.1),
-
-          const SizedBox(height: 18),
-
-          // Continue reading
-          if (quran.lastRead != null) ...<Widget>[
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 20),
-              child: ContinueReadingCard(),
-            ).animate().fadeIn(duration: 500.ms, delay: 140.ms).slideY(begin: 0.08),
-            const SizedBox(height: 22),
-          ],
-
-          // Daily Ayah
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 20),
-            child: DailyAyahCard(),
-          ).animate().fadeIn(duration: 500.ms, delay: 200.ms).slideY(begin: 0.08),
-
-          const SizedBox(height: 22),
-
-          // Quick actions
-          const QuickActions().animate().fadeIn(duration: 500.ms, delay: 240.ms),
-
-          const SizedBox(height: 26),
-
-          // Daily Dua
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 20),
-            child: DailyDuaCard(),
-          ).animate().fadeIn(duration: 500.ms, delay: 280.ms).slideY(begin: 0.08),
-
-          const SizedBox(height: 22),
-
-          // Prayer reminder
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 20),
+            padding: EdgeInsets.symmetric(horizontal: 18),
             child: PrayerReminderCard(),
-          ).animate().fadeIn(duration: 500.ms, delay: 320.ms).slideY(begin: 0.08),
+          ).animate().fadeIn(duration: 500.ms, delay: 60.ms).slideY(begin: 0.06),
 
-          const SizedBox(height: 28),
+          const SizedBox(height: 22),
 
-          // Recently played
-          SectionHeader(title: context.t('section.recentlyPlayed')),
-          const RecentlyPlayedStrip().animate().fadeIn(duration: 500.ms, delay: 360.ms),
+          // Ayah of the day (ornamented book card)
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 18),
+            child: DailyAyahCard(),
+          ).animate().fadeIn(duration: 500.ms, delay: 140.ms).slideY(begin: 0.06),
+
+          // Continue Reading + Streak (2-column)
+          const SizedBox(height: 16),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 18),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: <Widget>[
+                if (quran.lastRead != null)
+                  const Expanded(flex: 14, child: ContinueReadingCard())
+                else
+                  Expanded(flex: 14, child: _ContinueEmpty(context.t)),
+                const SizedBox(width: 12),
+                const Expanded(flex: 10, child: StreakWidget()),
+              ],
+            ),
+          ).animate().fadeIn(duration: 500.ms, delay: 220.ms).slideY(begin: 0.06),
 
           const SizedBox(height: 24),
 
-          // Islamic quote
+          // Today's duas rail
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: GlassCard(
-              padding: const EdgeInsets.all(22),
-              gradient: AppColors.goldCardGradient,
-              borderColor: AppColors.gold.withValues(alpha: 0.25),
-              glowColor: AppColors.gold,
-              glowOpacity: 0.10,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Row(
-                    children: <Widget>[
-                      const Icon(Icons.format_quote_rounded, color: AppColors.goldLight),
-                      const SizedBox(width: 8),
-                      Text(context.t('section.reflection'),
-                          style: AppTypography.label.copyWith(color: AppColors.goldLight)),
-                    ],
+            padding: const EdgeInsets.fromLTRB(22, 0, 22, 12),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.baseline,
+              textBaseline: TextBaseline.alphabetic,
+              children: <Widget>[
+                Text(
+                  context.t('home.forMoment'),
+                  style: AppTypography.headlineMedium.copyWith(fontSize: 18),
+                ),
+                Text(
+                  context.t('home.seeAll'),
+                  style: AppTypography.button.copyWith(
+                    color: AppColors.gold,
+                    fontSize: 12,
                   ),
-                  const SizedBox(height: 14),
-                  Text(
-                    DailyContent.quoteForToday(),
-                    style: AppTypography.displaySmall.copyWith(
-                      fontSize: 20,
-                      height: 1.45,
-                      fontWeight: FontWeight.w400,
-                    ),
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
-          ).animate().fadeIn(duration: 500.ms, delay: 400.ms).slideY(begin: 0.08),
+          ),
+          const DailyDuaCard().animate().fadeIn(duration: 500.ms, delay: 300.ms),
+
+          const SizedBox(height: 14),
+          const QuickActions().animate().fadeIn(duration: 500.ms, delay: 360.ms),
+
+          const SizedBox(height: 26),
+
+          Padding(
+            padding: const EdgeInsets.fromLTRB(22, 0, 22, 10),
+            child: Text(
+              context.t('section.recentlyPlayed'),
+              style: AppTypography.headlineMedium.copyWith(fontSize: 18),
+            ),
+          ),
+          const RecentlyPlayedStrip().animate().fadeIn(duration: 500.ms, delay: 420.ms),
         ],
       ),
     );
@@ -144,65 +127,65 @@ class _GreetingHeader extends StatelessWidget {
     final String today = DateFormat('EEEE · MMMM d').format(DateTime.now());
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 18, 20, 6),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
+      padding: const EdgeInsets.fromLTRB(22, 8, 22, 6),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Text(
-                  today,
-                  style: AppTypography.label.copyWith(color: AppColors.textTertiary),
-                ),
-                const SizedBox(height: 4),
-                Row(
-                  children: <Widget>[
-                    Text(context.t(_greetingKey()),
-                        style: AppTypography.headlineMedium),
-                    const SizedBox(width: 6),
-                    const Text('🤍', style: TextStyle(fontSize: 18)),
-                  ],
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  context.t('greeting.subtitle'),
-                  style: AppTypography.bodySmall.copyWith(color: AppColors.textTertiary),
-                ),
-              ],
+          Text(
+            today,
+            style: AppTypography.bodySmall.copyWith(
+              color: AppColors.textTertiary,
+              fontWeight: FontWeight.w500,
+              fontSize: 13,
             ),
           ),
-          // Logo / brand mark
-          Container(
-            width: 48,
-            height: 48,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              gradient: const LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: <Color>[AppColors.surface, AppColors.surfaceMuted],
-              ),
-              border: Border.all(color: AppColors.gold.withValues(alpha: 0.4), width: 0.8),
-              boxShadow: <BoxShadow>[
-                BoxShadow(
-                  color: AppColors.emerald.withValues(alpha: 0.25),
-                  blurRadius: 18,
-                  spreadRadius: 1,
-                ),
-              ],
+          const SizedBox(height: 4),
+          Text(
+            context.t(_greetingKey()),
+            style: AppTypography.displayMedium.copyWith(
+              color: AppColors.textPrimary,
+              fontSize: 32,
+              height: 1.1,
             ),
-            child: Center(
-              child: Text(
-                'ن',
-                style: AppTypography.arabic(
-                  fontSize: 26,
-                  color: AppColors.gold,
-                  height: 1.0,
-                ),
-              ),
+          ),
+          Text(
+            context.t('greeting.subtitle'),
+            style: AppTypography.displayMedium.copyWith(
+              color: AppColors.gold,
+              fontStyle: FontStyle.italic,
+              fontSize: 22,
+              height: 1.2,
             ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ContinueEmpty extends StatelessWidget {
+  const _ContinueEmpty(this.t);
+  final String Function(String) t;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: AppColors.line, width: 0.7),
+        boxShadow: AppColors.cardShadow,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Text('OPEN A SURAH',
+              style: AppTypography.eyebrow.copyWith(fontSize: 10)),
+          const SizedBox(height: 6),
+          Text(
+            t('home.openSurahToStart'),
+            style: AppTypography.bodySmall,
           ),
         ],
       ),

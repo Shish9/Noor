@@ -1,21 +1,26 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 
 import '../theme/app_colors.dart';
 
-/// Premium glassmorphism card with backdrop blur, subtle border,
-/// and optional emerald or gold glow.
+/// Noor-style "book" card.
+///
+/// The original app used heavy backdrop blur + emerald glow. The Midnight
+/// design language uses **solid surface fills + thin gold hairline borders +
+/// soft far shadow** to read like an illuminated manuscript page rather than
+/// a glass dashboard.
+///
+/// API kept identical to the previous GlassCard so every caller still works.
 class GlassCard extends StatelessWidget {
   const GlassCard({
     super.key,
     required this.child,
     this.padding = const EdgeInsets.all(20),
-    this.borderRadius = 24,
-    this.blur = 18,
+    this.borderRadius = 22,
+    this.blur = 0, // ignored — kept for backwards compat
     this.gradient,
     this.borderColor,
     this.glowColor,
-    this.glowOpacity = 0.18,
+    this.glowOpacity = 0.0,
     this.height,
     this.width,
     this.onTap,
@@ -37,55 +42,34 @@ class GlassCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final BorderRadius radius = BorderRadius.circular(borderRadius);
 
-    final Widget content = ClipRRect(
-      borderRadius: radius,
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: blur, sigmaY: blur),
-        child: Container(
-          height: height,
-          width: width,
-          padding: padding,
-          decoration: BoxDecoration(
-            gradient: gradient ?? AppColors.cardGradient,
-            borderRadius: radius,
-            border: Border.all(
-              color: borderColor ?? AppColors.glassBorder,
-              width: 0.6,
-            ),
-          ),
-          child: child,
+    final Widget content = Container(
+      height: height,
+      width: width,
+      padding: padding,
+      decoration: BoxDecoration(
+        gradient: gradient,
+        color: gradient == null ? AppColors.surface : null,
+        borderRadius: radius,
+        border: Border.all(
+          color: borderColor ?? AppColors.line,
+          width: 0.7,
         ),
+        boxShadow: AppColors.cardShadow,
       ),
+      child: child,
     );
 
-    final Widget wrapped = onTap == null
-        ? content
-        : Material(
-            color: Colors.transparent,
-            child: InkWell(
-              onTap: onTap,
-              borderRadius: radius,
-              splashColor: AppColors.emerald.withValues(alpha: 0.06),
-              highlightColor: AppColors.emerald.withValues(alpha: 0.03),
-              child: content,
-            ),
-          );
+    if (onTap == null) return content;
 
-    if (glowColor == null) return wrapped;
-
-    return DecoratedBox(
-      decoration: BoxDecoration(
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
         borderRadius: radius,
-        boxShadow: <BoxShadow>[
-          BoxShadow(
-            color: glowColor!.withValues(alpha: glowOpacity),
-            blurRadius: 32,
-            spreadRadius: 0,
-            offset: const Offset(0, 8),
-          ),
-        ],
+        splashColor: AppColors.gold.withValues(alpha: 0.06),
+        highlightColor: AppColors.gold.withValues(alpha: 0.03),
+        child: content,
       ),
-      child: wrapped,
     );
   }
 }

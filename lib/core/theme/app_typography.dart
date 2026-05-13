@@ -3,17 +3,21 @@ import 'package:google_fonts/google_fonts.dart';
 
 import 'app_colors.dart';
 
-/// Premium typography system.
+/// Noor typography — **Cormorant Garamond + Manrope + Amiri Quran**.
 ///
-/// Latin: Inter (clean, fintech-grade)
-/// Display: Cormorant Garamond (luxurious serif moments)
-/// Arabic: Amiri / Scheherazade New (calligraphy-inspired) — loaded via google_fonts
+/// Display & serif moments (greetings, surah names, ornamental headings):
+///   Cormorant Garamond
+/// Body & UI chrome (labels, buttons, captions, descriptions):
+///   Manrope
+/// Arabic Quran text (verses, dua bodies, brand letter):
+///   Amiri Quran (with Amiri / Scheherazade New as fallbacks)
 class AppTypography {
   AppTypography._();
 
+  // ── Display (Cormorant Garamond serif) ────────────────────────────────
   static TextStyle displayLarge = GoogleFonts.cormorantGaramond(
     fontSize: 44,
-    fontWeight: FontWeight.w300,
+    fontWeight: FontWeight.w500,
     color: AppColors.textPrimary,
     letterSpacing: -0.5,
     height: 1.1,
@@ -21,10 +25,10 @@ class AppTypography {
 
   static TextStyle displayMedium = GoogleFonts.cormorantGaramond(
     fontSize: 32,
-    fontWeight: FontWeight.w400,
+    fontWeight: FontWeight.w500,
     color: AppColors.textPrimary,
     letterSpacing: -0.3,
-    height: 1.2,
+    height: 1.1,
   );
 
   static TextStyle displaySmall = GoogleFonts.cormorantGaramond(
@@ -32,34 +36,36 @@ class AppTypography {
     fontWeight: FontWeight.w500,
     color: AppColors.textPrimary,
     letterSpacing: -0.2,
-    height: 1.25,
-  );
-
-  static TextStyle headlineLarge = GoogleFonts.inter(
-    fontSize: 28,
-    fontWeight: FontWeight.w600,
-    color: AppColors.textPrimary,
-    letterSpacing: -0.4,
     height: 1.2,
   );
 
-  static TextStyle headlineMedium = GoogleFonts.inter(
+  // ── Headlines (Cormorant for premium feel) ────────────────────────────
+  static TextStyle headlineLarge = GoogleFonts.cormorantGaramond(
+    fontSize: 28,
+    fontWeight: FontWeight.w500,
+    color: AppColors.textPrimary,
+    letterSpacing: -0.4,
+    height: 1.1,
+  );
+
+  static TextStyle headlineMedium = GoogleFonts.cormorantGaramond(
     fontSize: 22,
-    fontWeight: FontWeight.w600,
+    fontWeight: FontWeight.w500,
     color: AppColors.textPrimary,
     letterSpacing: -0.2,
+    height: 1.2,
+  );
+
+  static TextStyle headlineSmall = GoogleFonts.cormorantGaramond(
+    fontSize: 18,
+    fontWeight: FontWeight.w500,
+    color: AppColors.textPrimary,
+    letterSpacing: -0.1,
     height: 1.25,
   );
 
-  static TextStyle headlineSmall = GoogleFonts.inter(
-    fontSize: 18,
-    fontWeight: FontWeight.w600,
-    color: AppColors.textPrimary,
-    letterSpacing: -0.1,
-    height: 1.3,
-  );
-
-  static TextStyle titleLarge = GoogleFonts.inter(
+  // ── Titles (Manrope for compact strength) ─────────────────────────────
+  static TextStyle titleLarge = GoogleFonts.manrope(
     fontSize: 16,
     fontWeight: FontWeight.w600,
     color: AppColors.textPrimary,
@@ -67,15 +73,16 @@ class AppTypography {
     height: 1.35,
   );
 
-  static TextStyle titleMedium = GoogleFonts.inter(
+  static TextStyle titleMedium = GoogleFonts.manrope(
     fontSize: 14,
     fontWeight: FontWeight.w600,
     color: AppColors.textPrimary,
-    letterSpacing: 0.1,
+    letterSpacing: 0,
     height: 1.4,
   );
 
-  static TextStyle bodyLarge = GoogleFonts.inter(
+  // ── Body (Manrope) ────────────────────────────────────────────────────
+  static TextStyle bodyLarge = GoogleFonts.manrope(
     fontSize: 16,
     fontWeight: FontWeight.w400,
     color: AppColors.textPrimary,
@@ -83,82 +90,98 @@ class AppTypography {
     height: 1.5,
   );
 
-  static TextStyle bodyMedium = GoogleFonts.inter(
+  static TextStyle bodyMedium = GoogleFonts.manrope(
     fontSize: 14,
     fontWeight: FontWeight.w400,
     color: AppColors.textSecondary,
-    letterSpacing: 0.1,
+    letterSpacing: 0,
     height: 1.5,
   );
 
-  static TextStyle bodySmall = GoogleFonts.inter(
+  static TextStyle bodySmall = GoogleFonts.manrope(
     fontSize: 12,
     fontWeight: FontWeight.w400,
     color: AppColors.textSecondary,
-    letterSpacing: 0.2,
+    letterSpacing: 0,
     height: 1.45,
   );
 
-  static TextStyle label = GoogleFonts.inter(
+  // ── Eyebrow — the signature uppercase gold tracking style ─────────────
+  static TextStyle eyebrow = GoogleFonts.manrope(
     fontSize: 11,
-    fontWeight: FontWeight.w500,
-    color: AppColors.textTertiary,
-    letterSpacing: 1.4,
+    fontWeight: FontWeight.w600,
+    color: AppColors.gold,
+    letterSpacing: 1.98, // 0.18em at 11px
     height: 1.2,
   );
 
-  static TextStyle button = GoogleFonts.inter(
+  // ── Labels & captions ─────────────────────────────────────────────────
+  static TextStyle label = GoogleFonts.manrope(
+    fontSize: 11,
+    fontWeight: FontWeight.w600,
+    color: AppColors.gold,
+    letterSpacing: 1.98,
+    height: 1.2,
+  );
+
+  static TextStyle button = GoogleFonts.manrope(
     fontSize: 14,
     fontWeight: FontWeight.w600,
     color: AppColors.textPrimary,
-    letterSpacing: 0.4,
+    letterSpacing: 0.3,
   );
 
-  static TextStyle caption = GoogleFonts.inter(
+  static TextStyle caption = GoogleFonts.manrope(
     fontSize: 11,
-    fontWeight: FontWeight.w400,
+    fontWeight: FontWeight.w500,
     color: AppColors.textTertiary,
     letterSpacing: 0.4,
+    height: 1.3,
   );
 
-  // Arabic — loaded via Google Fonts (no bundled .ttf required).
-  static TextStyle arabicLarge = GoogleFonts.amiri(
+  // ── Italic Cormorant for "verse translation" moments ──────────────────
+  static TextStyle verseEnglish = GoogleFonts.cormorantGaramond(
+    fontSize: 17,
+    fontWeight: FontWeight.w500,
+    fontStyle: FontStyle.italic,
+    color: AppColors.textSecondary,
+    letterSpacing: 0,
+    height: 1.5,
+  );
+
+  // ── Arabic — Amiri Quran is the religious-text font of choice ─────────
+  static TextStyle arabicLarge = GoogleFonts.amiriQuran(
     fontSize: 32,
     height: 2.1,
     color: AppColors.textPrimary,
-    fontWeight: FontWeight.w400,
   );
 
-  static TextStyle arabicMedium = GoogleFonts.amiri(
+  static TextStyle arabicMedium = GoogleFonts.amiriQuran(
     fontSize: 24,
     height: 2.0,
     color: AppColors.textPrimary,
-    fontWeight: FontWeight.w400,
   );
 
-  static TextStyle arabicSmall = GoogleFonts.amiri(
+  static TextStyle arabicSmall = GoogleFonts.amiriQuran(
     fontSize: 20,
     height: 1.9,
     color: AppColors.textPrimary,
-    fontWeight: FontWeight.w400,
   );
 
   static TextStyle arabicCalligraphy = GoogleFonts.scheherazadeNew(
     fontSize: 28,
     height: 2.0,
     color: AppColors.textPrimary,
-    fontWeight: FontWeight.w400,
   );
 
-  /// Convenience: build an Amiri TextStyle with custom params.
-  /// Use this anywhere Arabic appears inline so the font is consistent.
+  /// Convenience: build an Amiri-Quran TextStyle inline.
   static TextStyle arabic({
     double fontSize = 24,
     FontWeight fontWeight = FontWeight.w400,
     Color color = AppColors.textPrimary,
     double height = 1.95,
   }) {
-    return GoogleFonts.amiri(
+    return GoogleFonts.amiriQuran(
       fontSize: fontSize,
       fontWeight: fontWeight,
       color: color,

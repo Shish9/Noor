@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-/// Languages supported by the QuranApp UI.
+/// Languages supported by the Noor UI.
 ///
-/// All Arabic-script languages (Arabic, Sorani, Badini) are RTL.
+/// Arabic uses RTL; English uses LTR.
 enum AppLanguage {
   english(
     code: 'en',
@@ -16,22 +16,6 @@ enum AppLanguage {
     locale: Locale('ar'),
     native: 'العربية',
     englishName: 'Arabic',
-    isRtl: true,
-  ),
-  sorani(
-    code: 'ckb',
-    // Flutter doesn't ship a 'ckb' locale; encode as Kurdish (ku) Iraq (IQ).
-    locale: Locale('ku', 'IQ'),
-    native: 'سۆرانی',
-    englishName: 'Kurdish (Sorani)',
-    isRtl: true,
-  ),
-  badini(
-    code: 'kmr',
-    // Northern Kurdish, encoded as Kurdish (ku) Turkey (TR).
-    locale: Locale('ku', 'TR'),
-    native: 'بادینی',
-    englishName: 'Kurdish (Badini)',
     isRtl: true,
   );
 

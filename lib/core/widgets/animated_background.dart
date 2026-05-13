@@ -3,12 +3,15 @@ import 'package:flutter/material.dart';
 
 import '../theme/app_colors.dart';
 
-/// Ambient living background — soft emerald & gold particles drifting
-/// behind a matte black gradient. Optimized to run at low cost.
+/// Ambient midnight backdrop with **very subtle** drifting gold particles.
+///
+/// In the original brief this lit up emerald + gold; the Noor design package
+/// asks for a calmer manuscript feel, so this is now a quiet field of small
+/// gold pin-pricks far below the legibility threshold of any text.
 class AnimatedBackground extends StatefulWidget {
   const AnimatedBackground({
     super.key,
-    this.particleCount = 18,
+    this.particleCount = 14,
     this.intensity = 1.0,
     this.includeGold = true,
   });
@@ -25,25 +28,24 @@ class _AnimatedBackgroundState extends State<AnimatedBackground>
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
   late final List<_Particle> _particles;
-  final math.Random _rand = math.Random(7);
+  final math.Random _rand = math.Random(11);
 
   @override
   void initState() {
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(seconds: 20),
+      duration: const Duration(seconds: 40),
     )..repeat();
 
     _particles = List<_Particle>.generate(widget.particleCount, (int i) {
       return _Particle(
         seed: _rand.nextDouble(),
-        radius: 60 + _rand.nextDouble() * 140,
-        speed: 0.05 + _rand.nextDouble() * 0.12,
+        radius: 30 + _rand.nextDouble() * 80,
+        speed: 0.04 + _rand.nextDouble() * 0.08,
         baseX: _rand.nextDouble(),
         baseY: _rand.nextDouble(),
-        amplitude: 0.05 + _rand.nextDouble() * 0.18,
-        gold: widget.includeGold && _rand.nextDouble() < 0.25,
+        amplitude: 0.04 + _rand.nextDouble() * 0.10,
       );
     });
   }
@@ -60,17 +62,14 @@ class _AnimatedBackgroundState extends State<AnimatedBackground>
       child: IgnorePointer(
         child: Stack(
           children: <Widget>[
-            // Base matte black gradient
             const DecoratedBox(
               decoration: BoxDecoration(gradient: AppColors.backgroundGradient),
               child: SizedBox.expand(),
             ),
-            // Ambient emerald glow at top
             const DecoratedBox(
               decoration: BoxDecoration(gradient: AppColors.ambientGlow),
               child: SizedBox.expand(),
             ),
-            // Drifting particles
             AnimatedBuilder(
               animation: _controller,
               builder: (BuildContext _, Widget? __) {
@@ -99,7 +98,6 @@ class _Particle {
     required this.baseX,
     required this.baseY,
     required this.amplitude,
-    required this.gold,
   });
 
   final double seed;
@@ -108,7 +106,6 @@ class _Particle {
   final double baseX;
   final double baseY;
   final double amplitude;
-  final bool gold;
 }
 
 class _ParticlePainter extends CustomPainter {
@@ -129,18 +126,17 @@ class _ParticlePainter extends CustomPainter {
       final double x = (p.baseX + math.cos(angle) * p.amplitude) * size.width;
       final double y = (p.baseY + math.sin(angle * 0.8) * p.amplitude) * size.height;
 
-      final Color base = p.gold ? AppColors.gold : AppColors.emerald;
       final double alphaPulse =
-          0.05 + (math.sin((t + p.seed) * 2 * math.pi) + 1) * 0.04;
+          0.02 + (math.sin((t + p.seed) * 2 * math.pi) + 1) * 0.02;
 
       final Paint paint = Paint()
         ..shader = RadialGradient(
           colors: <Color>[
-            base.withValues(alpha: alphaPulse * intensity),
-            base.withValues(alpha: 0),
+            AppColors.gold.withValues(alpha: alphaPulse * intensity),
+            AppColors.gold.withValues(alpha: 0),
           ],
         ).createShader(Rect.fromCircle(center: Offset(x, y), radius: p.radius))
-        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 18);
+        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 12);
 
       canvas.drawCircle(Offset(x, y), p.radius, paint);
     }

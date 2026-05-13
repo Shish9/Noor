@@ -1,10 +1,12 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import '../../core/l10n/translations.dart';
 import '../../core/theme/app_colors.dart';
-import '../../core/theme/app_typography.dart';
 
+/// Pill-shaped tab bar with backdrop blur, hairline gold border, and a small
+/// gold dot under the active tab — matches the Noor design package.
 class GlassNavBar extends StatelessWidget {
   const GlassNavBar({super.key, required this.current, required this.onTap});
 
@@ -12,54 +14,52 @@ class GlassNavBar extends StatelessWidget {
   final ValueChanged<int> onTap;
 
   static const List<_NavItem> _items = <_NavItem>[
-    _NavItem('tab.home', Icons.home_rounded, Icons.home_outlined),
-    _NavItem('tab.quran', Icons.menu_book_rounded, Icons.menu_book_outlined),
-    _NavItem('tab.duas', Icons.spa_rounded, Icons.spa_outlined),
+    _NavItem('tab.home', Icons.home_outlined, Icons.home_rounded),
+    _NavItem('tab.quran', Icons.menu_book_outlined, Icons.menu_book_rounded),
+    _NavItem('tab.duas', Icons.spa_outlined, Icons.spa_rounded),
     _NavItem('tab.audio', Icons.graphic_eq_rounded, Icons.graphic_eq_rounded),
-    _NavItem('tab.profile', Icons.person_rounded, Icons.person_outline_rounded),
+    _NavItem('tab.profile', Icons.person_outline_rounded, Icons.person_rounded),
   ];
 
   @override
   Widget build(BuildContext context) {
     return SafeArea(
       top: false,
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(14, 6, 14, 14),
+      child: Container(
+        padding: const EdgeInsets.fromLTRB(12, 8, 12, 14),
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: <Color>[
+              Color(0x000B1220),
+              Color(0x9E0B1220),
+              Color(0xFF0B1220),
+            ],
+            stops: <double>[0.0, 0.45, 1.0],
+          ),
+        ),
         child: ClipRRect(
-          borderRadius: BorderRadius.circular(28),
+          borderRadius: BorderRadius.circular(999),
           child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 24, sigmaY: 24),
+            filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
             child: Container(
-              height: 68,
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
               decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: <Color>[
-                    Color(0x33101316),
-                    Color(0x66050607),
-                  ],
-                ),
-                borderRadius: BorderRadius.circular(28),
-                border: Border.all(color: AppColors.glassBorder, width: 0.6),
-                boxShadow: <BoxShadow>[
-                  BoxShadow(
-                    color: AppColors.emerald.withValues(alpha: 0.08),
-                    blurRadius: 32,
-                    offset: const Offset(0, 8),
-                  ),
-                ],
+                color: AppColors.tabBg,
+                borderRadius: BorderRadius.circular(999),
+                border: Border.all(color: AppColors.tabLine, width: 0.6),
+                boxShadow: AppColors.cardShadow,
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: List<Widget>.generate(_items.length, (int i) {
                   final _NavItem item = _items[i];
-                  final bool selected = current == i;
                   return _NavButton(
                     label: context.t(item.labelKey),
                     iconActive: item.iconActive,
                     iconInactive: item.iconInactive,
-                    selected: selected,
+                    selected: current == i,
                     onTap: () => onTap(i),
                   );
                 }),
@@ -73,10 +73,10 @@ class GlassNavBar extends StatelessWidget {
 }
 
 class _NavItem {
-  const _NavItem(this.labelKey, this.iconActive, this.iconInactive);
+  const _NavItem(this.labelKey, this.iconInactive, this.iconActive);
   final String labelKey;
-  final IconData iconActive;
   final IconData iconInactive;
+  final IconData iconActive;
 }
 
 class _NavButton extends StatelessWidget {
@@ -100,54 +100,45 @@ class _NavButton extends StatelessWidget {
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: onTap,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 240),
-          curve: Curves.easeOutCubic,
+        child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 8),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+          child: Stack(
+            alignment: Alignment.bottomCenter,
+            clipBehavior: Clip.none,
             children: <Widget>[
-              AnimatedContainer(
-                duration: const Duration(milliseconds: 240),
-                width: selected ? 36 : 24,
-                height: selected ? 36 : 24,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: selected
-                      ? const RadialGradient(
-                          colors: <Color>[
-                            Color(0x4410B981),
-                            Color(0x0010B981),
-                          ],
-                        )
-                      : null,
-                  boxShadow: selected
-                      ? <BoxShadow>[
-                          BoxShadow(
-                            color: AppColors.emerald.withValues(alpha: 0.32),
-                            blurRadius: 18,
-                            spreadRadius: 1,
-                          ),
-                        ]
-                      : null,
-                ),
-                child: Icon(
-                  selected ? iconActive : iconInactive,
-                  size: selected ? 22 : 21,
-                  color: selected ? AppColors.emeraldGlow : AppColors.textTertiary,
-                ),
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  Icon(
+                    selected ? iconActive : iconInactive,
+                    size: 22,
+                    color: selected ? AppColors.gold : AppColors.textTertiary,
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    label,
+                    overflow: TextOverflow.ellipsis,
+                    style: GoogleFonts.manrope(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: 0.4,
+                      color: selected ? AppColors.gold : AppColors.textTertiary,
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(height: 4),
-              AnimatedDefaultTextStyle(
-                duration: const Duration(milliseconds: 220),
-                style: AppTypography.caption.copyWith(
-                  color: selected ? AppColors.emeraldGlow : AppColors.textTertiary,
-                  fontSize: 10.5,
-                  fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
-                  letterSpacing: 0.2,
+              if (selected)
+                Positioned(
+                  bottom: -2,
+                  child: Container(
+                    width: 4,
+                    height: 4,
+                    decoration: const BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: AppColors.gold,
+                    ),
+                  ),
                 ),
-                child: Text(label),
-              ),
             ],
           ),
         ),

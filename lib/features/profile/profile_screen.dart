@@ -9,6 +9,7 @@ import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_typography.dart';
 import '../../core/widgets/arabic_pattern.dart';
 import '../../core/widgets/glass_card.dart';
+import '../../core/widgets/noor_star.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -25,64 +26,64 @@ class ProfileScreen extends StatelessWidget {
         physics: const BouncingScrollPhysics(),
         children: <Widget>[
           // Hero card
-          Stack(
-            children: <Widget>[
-              GlassCard(
-                padding: const EdgeInsets.all(28),
-                gradient: AppColors.emeraldCardGradient,
-                borderColor: AppColors.emerald.withValues(alpha: 0.3),
-                glowColor: AppColors.emerald,
-                glowOpacity: 0.16,
-                child: Column(
-                  children: <Widget>[
-                    Container(
-                      width: 84,
-                      height: 84,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        gradient: const LinearGradient(
-                          colors: <Color>[AppColors.gold, AppColors.goldDeep],
-                        ),
-                        boxShadow: <BoxShadow>[
-                          BoxShadow(
-                            color: AppColors.gold.withValues(alpha: 0.5),
-                            blurRadius: 24,
-                            spreadRadius: 2,
-                          ),
-                        ],
-                      ),
-                      child: Center(
-                        child: Text(
-                          'ن',
-                          style: AppTypography.arabic(
-                            fontSize: 44,
-                            color: AppColors.background,
-                            height: 1.0,
-                          ),
-                        ),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(22),
+            child: Container(
+              padding: const EdgeInsets.all(28),
+              decoration: BoxDecoration(
+                gradient: AppColors.heroGradient,
+                borderRadius: BorderRadius.circular(22),
+                border: Border.all(color: AppColors.line, width: 0.7),
+                boxShadow: AppColors.cardShadow,
+              ),
+              child: Stack(
+                clipBehavior: Clip.hardEdge,
+                children: <Widget>[
+                  const Positioned(
+                    right: -30,
+                    top: -30,
+                    child: IgnorePointer(
+                      child: NoorStar(
+                        size: 160,
+                        stroke: 0.5,
+                        color: AppColors.patternFg,
                       ),
                     ),
-                    const SizedBox(height: 16),
-                    Text(context.t('profile.assalam'),
-                        style: AppTypography.headlineSmall),
-                    const SizedBox(height: 4),
-                    Text(
-                      context.t('profile.journey'),
-                      style: AppTypography.bodySmall,
-                    ),
-                  ],
-                ),
+                  ),
+                  Column(
+                    children: <Widget>[
+                      Container(
+                        width: 84,
+                        height: 84,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(color: AppColors.gold, width: 1),
+                        ),
+                        child: Center(
+                          child: Text(
+                            'ن',
+                            style: AppTypography.arabic(
+                              fontSize: 44,
+                              color: AppColors.gold,
+                              height: 1.0,
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      Text(context.t('profile.assalam'),
+                          style: AppTypography.headlineSmall),
+                      const SizedBox(height: 4),
+                      Text(
+                        context.t('profile.journey'),
+                        style: AppTypography.bodySmall,
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ),
+                ],
               ),
-              const Positioned(
-                top: 0,
-                right: 0,
-                child: SizedBox(
-                  width: 120,
-                  height: 120,
-                  child: ArabicPatternOverlay(opacity: 0.05, scale: 0.6),
-                ),
-              ),
-            ],
+            ),
           ),
 
           const SizedBox(height: 22),
