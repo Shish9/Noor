@@ -1,6 +1,8 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:just_audio_background/just_audio_background.dart';
 import 'package:provider/provider.dart';
 
 import 'app/app.dart';
@@ -31,6 +33,20 @@ Future<void> main() async {
   await Hive.initFlutter();
   await StorageService.instance.init();
   await NotificationService.instance.init();
+
+  // Initialize background audio so Quran recitation continues when the
+  // app is in the background or the screen is locked. The notification
+  // channel + media controls are wired up automatically.
+  // Skipped on web — just_audio_background is mobile-only and would
+  // otherwise crash boot before runApp() ever runs.
+  if (!kIsWeb) {
+    await JustAudioBackground.init(
+      androidNotificationChannelId: 'app.noor.audio',
+      androidNotificationChannelName: 'Noor — Quran Audio',
+      androidNotificationOngoing: true,
+      androidShowNotificationBadge: true,
+    );
+  }
 
   runApp(
     MultiProvider(

@@ -472,8 +472,34 @@ class Translations {
       AppLanguage.arabic: 'تخطي',
     },
     'onboarding.begin': <AppLanguage, String>{
-      AppLanguage.english: 'Begin Your Journey',
-      AppLanguage.arabic: 'ابدأ رحلتك',
+      AppLanguage.english: 'Begin',
+      AppLanguage.arabic: 'ابدأ',
+    },
+    'onboarding.enterApp': <AppLanguage, String>{
+      AppLanguage.english: 'Enter Noor',
+      AppLanguage.arabic: 'ادخل نور',
+    },
+    'onboarding.nameTitle': <AppLanguage, String>{
+      AppLanguage.english: 'What should we call you?',
+      AppLanguage.arabic: 'ما اسمك؟',
+    },
+    'onboarding.nameSubtitle': <AppLanguage, String>{
+      AppLanguage.english:
+          'We\'ll greet you with this name every time you open Noor.',
+      AppLanguage.arabic:
+          'سنحييك بهذا الاسم في كل مرة تفتح فيها نور.',
+    },
+    'onboarding.namePlaceholder': <AppLanguage, String>{
+      AppLanguage.english: 'Your name',
+      AppLanguage.arabic: 'اسمك',
+    },
+    'onboarding.nameHint': <AppLanguage, String>{
+      AppLanguage.english: 'You can change this later in Settings.',
+      AppLanguage.arabic: 'يمكنك تغييره لاحقًا في الإعدادات.',
+    },
+    'onboarding.nameRequired': <AppLanguage, String>{
+      AppLanguage.english: 'Please enter your name to continue.',
+      AppLanguage.arabic: 'الرجاء إدخال اسمك للمتابعة.',
     },
 
     // ─────────────── Home cards ───────────────

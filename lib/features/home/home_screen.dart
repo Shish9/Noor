@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import '../../core/data/daily_content.dart';
 import '../../core/l10n/translations.dart';
 import '../../core/state/quran_state.dart';
+import '../../core/state/settings_state.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_typography.dart';
 import 'widgets/continue_reading_card.dart';
@@ -125,6 +126,7 @@ class _GreetingHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final String today = DateFormat('EEEE · MMMM d').format(DateTime.now());
+    final String name = context.watch<SettingsState>().userName;
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(22, 8, 22, 6),
@@ -140,6 +142,7 @@ class _GreetingHeader extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 4),
+          // Greeting line — Cormorant in foreground color
           Text(
             context.t(_greetingKey()),
             style: AppTypography.displayMedium.copyWith(
@@ -148,13 +151,14 @@ class _GreetingHeader extends StatelessWidget {
               height: 1.1,
             ),
           ),
+          // Name (or default subtitle if no name yet) — italic gold
           Text(
-            context.t('greeting.subtitle'),
+            name.isNotEmpty ? name : context.t('greeting.subtitle'),
             style: AppTypography.displayMedium.copyWith(
               color: AppColors.gold,
               fontStyle: FontStyle.italic,
-              fontSize: 22,
-              height: 1.2,
+              fontSize: name.isNotEmpty ? 32 : 22,
+              height: 1.1,
             ),
           ),
         ],

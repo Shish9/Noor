@@ -64,6 +64,10 @@ class AudioState extends ChangeNotifier {
     notifyListeners();
 
     try {
+      // Plain URL set — `just_audio_background` (initialized in main.dart on
+      // mobile only) handles lock-screen + notification controls via the
+      // shared player instance, no per-source MediaItem needed for the
+      // background pipeline to work.
       await _player.setUrl(use.surahUrl(surahNumber));
       await _player.setSpeed(_speed);
       await _player.play();

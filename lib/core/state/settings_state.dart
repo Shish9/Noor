@@ -10,6 +10,9 @@ class SettingsState extends ChangeNotifier {
   Locale get locale => _language.locale;
   bool get isRtl => _language.isRtl;
 
+  String _userName = '';
+  String get userName => _userName;
+
   double _arabicFontSize = 26;
   double get arabicFontSize => _arabicFontSize;
 
@@ -39,6 +42,7 @@ class SettingsState extends ChangeNotifier {
     // Default language: Arabic.
     _language =
         AppLanguage.fromCode(s.getPref<String>('lang', fallback: 'ar') ?? 'ar');
+    _userName = s.getPref<String>('user_name', fallback: '') ?? '';
     _arabicFontSize = (s.getPref<num>('arabic_font_size', fallback: 26) ?? 26).toDouble();
     _reciterId = s.getPref<String>('reciter', fallback: 'mishary') ?? 'mishary';
     _notificationsEnabled = s.getPref<bool>('notif_enabled', fallback: true) ?? true;
@@ -53,6 +57,14 @@ class SettingsState extends ChangeNotifier {
     if (_language == lang) return;
     _language = lang;
     await StorageService.instance.setPref('lang', lang.code);
+    notifyListeners();
+  }
+
+  Future<void> setUserName(String name) async {
+    final String trimmed = name.trim();
+    if (_userName == trimmed) return;
+    _userName = trimmed;
+    await StorageService.instance.setPref('user_name', trimmed);
     notifyListeners();
   }
 
