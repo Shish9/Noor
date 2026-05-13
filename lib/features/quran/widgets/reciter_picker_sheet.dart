@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/data/reciter_data.dart';
+import '../../../core/l10n/format_helpers.dart';
 import '../../../core/l10n/translations.dart';
 import '../../../core/models/reciter.dart';
 import '../../../core/state/audio_state.dart';
@@ -246,7 +247,7 @@ class _ReciterTile extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
                       Text(
-                        reciter.name,
+                        Fmt.reciterName(context, reciter),
                         style: AppTypography.titleMedium,
                         overflow: TextOverflow.ellipsis,
                       ),

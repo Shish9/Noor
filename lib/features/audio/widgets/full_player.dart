@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/data/surah_data.dart';
+import '../../../core/l10n/format_helpers.dart';
 import '../../../core/l10n/translations.dart';
 import '../../../core/models/surah.dart';
 import '../../../core/state/audio_state.dart';
@@ -175,9 +176,9 @@ class FullPlayer extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 18),
-          Text(surah.nameTransliteration, style: AppTypography.headlineSmall),
+          Text(Fmt.surahName(context, surah), style: AppTypography.headlineSmall),
           const SizedBox(height: 2),
-          Text(audio.reciter.name, style: AppTypography.bodySmall),
+          Text(Fmt.reciterName(context, audio.reciter), style: AppTypography.bodySmall),
           const SizedBox(height: 18),
           // Progress
           SliderTheme(

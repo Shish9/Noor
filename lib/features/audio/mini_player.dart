@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/data/surah_data.dart';
+import '../../core/l10n/format_helpers.dart';
 import '../../core/models/surah.dart';
 import '../../core/state/app_state.dart';
 import '../../core/state/audio_state.dart';
@@ -99,12 +100,14 @@ class MiniPlayer extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: <Widget>[
                               Text(
-                                surah.nameTransliteration,
+                                audio.currentAyahNumber != null
+                                    ? '${Fmt.surahName(context, surah)} · ${Fmt.n(context, audio.currentAyahNumber!)}'
+                                    : Fmt.surahName(context, surah),
                                 style: AppTypography.titleMedium.copyWith(fontSize: 13),
                                 overflow: TextOverflow.ellipsis,
                               ),
                               Text(
-                                audio.reciter.name,
+                                Fmt.reciterName(context, audio.reciter),
                                 style: AppTypography.caption,
                                 overflow: TextOverflow.ellipsis,
                               ),

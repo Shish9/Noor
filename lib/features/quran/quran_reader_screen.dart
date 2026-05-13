@@ -123,12 +123,16 @@ class _QuranReaderScreenState extends State<QuranReaderScreen> {
                         );
                       }
                       final Ayah a = ayahs[i - 1];
+                      final bool isCurrent =
+                          audio.isCurrentAyah(_surahNumber, a.number);
                       return AyahTile(
                         ayah: a,
                         surah: surah,
                         fontSize: settings.arabicFontSize,
                         showTransliteration: settings.showTransliteration,
                         bookmarked: quran.isBookmarked(a.reference),
+                        isCurrentlyPlaying: isCurrent && audio.isPlaying,
+                        isCurrentAyahPaused: isCurrent && !audio.isPlaying,
                         onBookmark: () => context
                             .read<QuranState>()
                             .toggleBookmark(a.reference),
@@ -142,16 +146,11 @@ class _QuranReaderScreenState extends State<QuranReaderScreen> {
                                 '${surah.nameTransliteration} ${a.surahNumber}:${a.number}',
                           },
                         ),
-                        onPlay: () =>
-                            context.read<AudioState>().playSurah(_surahNumber),
-                        onReadTafsir: () => Navigator.pushNamed(
-                          context,
-                          '/tafsir',
-                          arguments: <String, dynamic>{
-                            'surah': _surahNumber,
-                            'ayah': a.number,
-                          },
-                        ),
+                        // Smart toggle: if this ayah is loaded, pause/resume
+                        // in place; otherwise start playing this ayah.
+                        onPlay: () => context
+                            .read<AudioState>()
+                            .toggleAyah(_surahNumber, a.number),
                       );
                     },
                   ),

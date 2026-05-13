@@ -14,7 +14,6 @@ import '../features/quran/quran_screen.dart';
 import '../features/quran/surah_search_screen.dart';
 import '../features/share/share_card_screen.dart';
 import '../features/shell/app_shell.dart';
-import '../features/tafsir/tafsir_reader_screen.dart';
 
 class AppRouter {
   static Route<dynamic>? onGenerateRoute(RouteSettings settings) {
@@ -65,15 +64,6 @@ class AppRouter {
             arabic: (args?['arabic'] as String?) ?? '',
             translation: (args?['translation'] as String?) ?? '',
             reference: args?['reference'] as String?,
-          ),
-          settings,
-        );
-      case '/tafsir':
-        final Map<String, dynamic>? args = settings.arguments as Map<String, dynamic>?;
-        return _route(
-          TafsirReaderScreen(
-            surahNumber: (args?['surah'] as int?) ?? 1,
-            ayahNumber: args?['ayah'] as int?,
           ),
           settings,
         );

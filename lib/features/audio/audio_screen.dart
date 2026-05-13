@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../core/data/reciter_data.dart';
 import '../../core/data/surah_data.dart';
+import '../../core/l10n/format_helpers.dart';
 import '../../core/l10n/translations.dart';
 import '../../core/models/reciter.dart';
 import '../../core/models/surah.dart';
@@ -124,7 +125,7 @@ class _ReciterCard extends StatelessWidget {
             ),
             const Spacer(),
             Text(
-              reciter.name,
+              Fmt.reciterName(context, reciter),
               style: AppTypography.titleMedium.copyWith(fontSize: 13),
               overflow: TextOverflow.ellipsis,
               maxLines: 2,
@@ -202,7 +203,7 @@ class _SurahAudioTile extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
-                  Text(surah.nameTransliteration, style: AppTypography.titleMedium),
+                  Text(Fmt.surahName(context, surah), style: AppTypography.titleMedium),
                   const SizedBox(height: 2),
                   Text(
                     '${surah.meaning} · ${surah.ayahCount} ayahs',

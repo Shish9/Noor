@@ -192,17 +192,6 @@ class ProfileScreen extends StatelessWidget {
             onTap: () {},
           ),
           _SettingsTile(
-            icon: Icons.auto_stories_rounded,
-            label: context.t('profile.tafsirSoon'),
-            trailing: Text('Soon',
-                style: AppTypography.caption.copyWith(color: AppColors.gold)),
-            onTap: () => Navigator.pushNamed(
-              context,
-              '/tafsir',
-              arguments: const <String, dynamic>{'surah': 1},
-            ),
-          ),
-          _SettingsTile(
             icon: Icons.spa_rounded,
             label: context.t('profile.dhikrCounter'),
             onTap: () => Navigator.pushNamed(context, '/dhikr'),

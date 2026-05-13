@@ -630,6 +630,19 @@ class Translations {
       AppLanguage.arabic: 'افتح أي سورة من تبويب القرآن للبدء.',
     },
 
+    'home.openSurah': <AppLanguage, String>{
+      AppLanguage.english: 'OPEN A SURAH',
+      AppLanguage.arabic: 'افتح سورة',
+    },
+    'home.verse': <AppLanguage, String>{
+      AppLanguage.english: 'VERSE',
+      AppLanguage.arabic: 'آية',
+    },
+    'home.streakLabel': <AppLanguage, String>{
+      AppLanguage.english: 'STREAK',
+      AppLanguage.arabic: 'متتابع',
+    },
+
     // Prayer names
     'prayer.fajr': <AppLanguage, String>{
       AppLanguage.english: 'Fajr',

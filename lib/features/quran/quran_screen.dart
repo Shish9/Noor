@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
 import '../../core/data/surah_data.dart';
+import '../../core/l10n/format_helpers.dart';
 import '../../core/l10n/translations.dart';
 import '../../core/models/surah.dart';
 import '../../core/theme/app_colors.dart';
@@ -191,7 +192,7 @@ class _SurahTile extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  '${surah.number}',
+                  Fmt.n(context, surah.number),
                   style: AppTypography.titleMedium.copyWith(
                     color: AppColors.textPrimary,
                     fontWeight: FontWeight.w600,
@@ -206,10 +207,10 @@ class _SurahTile extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                Text(surah.nameTransliteration, style: AppTypography.titleLarge),
+                Text(Fmt.surahName(context, surah), style: AppTypography.titleLarge),
                 const SizedBox(height: 2),
                 Text(
-                  '${surah.meaning} · ${surah.ayahCount} ayahs · ${surah.revelationPlace}',
+                  '${surah.meaning} · ${Fmt.n(context, surah.ayahCount)} ${context.t('settings.ayahs')} · ${context.t(surah.revelationPlace == 'Meccan' ? 'quran.filter.meccan' : 'quran.filter.medinan')}',
                   style: AppTypography.caption,
                 ),
               ],

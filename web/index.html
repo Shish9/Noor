@@ -33,6 +33,19 @@
   <link rel="manifest" href="manifest.json">
 </head>
 <body>
+  <script>
+    // Aggressively kill any service worker from previous builds — they were
+    // serving stale broken Dart code and leaving the page blank. We can
+    // re-enable a fresh worker for production via flutter build web.
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistrations().then(rs => {
+        rs.forEach(r => r.unregister());
+      });
+      if ('caches' in window) {
+        caches.keys().then(ks => ks.forEach(k => caches.delete(k)));
+      }
+    }
+  </script>
   <script src="flutter_bootstrap.js" async></script>
 </body>
 </html>

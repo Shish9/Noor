@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../../core/l10n/translations.dart';
 import '../../../core/models/surah.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
@@ -17,7 +16,8 @@ class AyahTile extends StatelessWidget {
     required this.onBookmark,
     required this.onShare,
     required this.onPlay,
-    required this.onReadTafsir,
+    required this.isCurrentlyPlaying,
+    required this.isCurrentAyahPaused,
     this.highlighted = false,
   });
 
@@ -28,8 +28,15 @@ class AyahTile extends StatelessWidget {
   final bool bookmarked;
   final VoidCallback onBookmark;
   final VoidCallback onShare;
+  /// Called when the user taps the play/pause icon on THIS ayah. The
+  /// caller (reader) decides whether it's a fresh play or a toggle of
+  /// the already-loaded ayah.
   final VoidCallback onPlay;
-  final VoidCallback onReadTafsir;
+  /// True iff this exact ayah is loaded AND currently playing audio.
+  final bool isCurrentlyPlaying;
+  /// True iff this exact ayah is loaded but paused (so the button shows
+  /// "play" and a tap resumes from the saved position).
+  final bool isCurrentAyahPaused;
   final bool highlighted;
 
   @override
@@ -81,8 +88,14 @@ class AyahTile extends StatelessWidget {
                 ),
                 const SizedBox(width: 4),
                 _IconAction(
-                  icon: Icons.play_arrow_rounded,
-                  color: AppColors.textTertiary,
+                  icon: isCurrentlyPlaying
+                      ? Icons.pause_circle_filled_rounded
+                      : (isCurrentAyahPaused
+                          ? Icons.play_circle_fill_rounded
+                          : Icons.play_arrow_rounded),
+                  color: (isCurrentlyPlaying || isCurrentAyahPaused)
+                      ? AppColors.gold
+                      : AppColors.textTertiary,
                   onTap: onPlay,
                 ),
                 const SizedBox(width: 4),
@@ -121,46 +134,6 @@ class AyahTile extends StatelessWidget {
               style: AppTypography.bodyMedium.copyWith(
                 color: AppColors.textSecondary,
                 height: 1.55,
-              ),
-            ),
-            const SizedBox(height: 14),
-            // Read Tafsir button
-            GestureDetector(
-              onTap: onReadTafsir,
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
-                decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: <Color>[
-                      Color(0x2210B981),
-                      Color(0x1010B981),
-                    ],
-                  ),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: AppColors.emerald.withValues(alpha: 0.35),
-                    width: 0.6,
-                  ),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
-                    const Icon(Icons.auto_stories_rounded,
-                        size: 14, color: AppColors.emeraldGlow),
-                    const SizedBox(width: 8),
-                    Text(
-                      context.t('quran.readTafsir'),
-                      style: AppTypography.bodySmall.copyWith(
-                        color: AppColors.emeraldGlow,
-                        fontWeight: FontWeight.w600,
-                        letterSpacing: 0.3,
-                      ),
-                    ),
-                    const SizedBox(width: 4),
-                    const Icon(Icons.arrow_forward_ios_rounded,
-                        size: 10, color: AppColors.emeraldGlow),
-                  ],
-                ),
               ),
             ),
           ],
