@@ -196,6 +196,12 @@ class ProfileScreen extends StatelessWidget {
             label: context.t('profile.dhikrCounter'),
             onTap: () => Navigator.pushNamed(context, '/dhikr'),
           ),
+          _SettingsTile(
+            icon: Icons.notifications_outlined,
+            label: context.t('settings.previewNotif'),
+            onTap: () =>
+                Navigator.pushNamed(context, '/lockscreen-preview'),
+          ),
 
           const SizedBox(height: 22),
           Text(context.t('profile.about'), style: AppTypography.titleLarge),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../features/audio/audio_screen.dart';
 import '../features/dhikr/dhikr_screen.dart';
+import '../features/lockscreen_preview/lockscreen_preview_screen.dart';
 import '../features/duas/dua_category_screen.dart';
 import '../features/duas/dua_detail_screen.dart';
 import '../features/duas/duas_screen.dart';
@@ -69,6 +70,8 @@ class AppRouter {
         );
       case '/dhikr':
         return _route(const DhikrScreen(), settings);
+      case '/lockscreen-preview':
+        return _route(const LockscreenPreviewScreen(), settings);
     }
     return null;
   }

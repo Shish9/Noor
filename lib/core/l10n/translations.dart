@@ -479,6 +479,10 @@ class Translations {
       AppLanguage.english: 'Enter Noor',
       AppLanguage.arabic: 'ادخل نور',
     },
+    'onboarding.continue': <AppLanguage, String>{
+      AppLanguage.english: 'Continue',
+      AppLanguage.arabic: 'متابعة',
+    },
     'onboarding.nameTitle': <AppLanguage, String>{
       AppLanguage.english: 'What should we call you?',
       AppLanguage.arabic: 'ما اسمك؟',
@@ -641,6 +645,49 @@ class Translations {
     'home.streakLabel': <AppLanguage, String>{
       AppLanguage.english: 'STREAK',
       AppLanguage.arabic: 'متتابع',
+    },
+
+    // Lock-screen notification preview
+    'notif.app': <AppLanguage, String>{
+      AppLanguage.english: 'NOOR',
+      AppLanguage.arabic: 'نُور',
+    },
+    'notif.now': <AppLanguage, String>{
+      AppLanguage.english: 'now',
+      AppLanguage.arabic: 'الآن',
+    },
+    'notif.agoPrefix': <AppLanguage, String>{
+      AppLanguage.english: '',
+      AppLanguage.arabic: 'قبل',
+    },
+    'notif.ago.min': <AppLanguage, String>{
+      AppLanguage.english: 'min ago',
+      AppLanguage.arabic: 'د',
+    },
+    'notif.ago.hour': <AppLanguage, String>{
+      AppLanguage.english: 'h ago',
+      AppLanguage.arabic: 'س',
+    },
+    'notif.close': <AppLanguage, String>{
+      AppLanguage.english: 'Close preview',
+      AppLanguage.arabic: 'إغلاق المعاينة',
+    },
+    'notif.asrBody': <AppLanguage, String>{
+      AppLanguage.english: 'It\'s time for Asr',
+      AppLanguage.arabic: 'حان وقت العصر',
+    },
+    'notif.verseRef': <AppLanguage, String>{
+      AppLanguage.english: 'AL-BAQARAH · 2:286',
+      AppLanguage.arabic: 'البقرة ٢:٢٨٦',
+    },
+    'notif.streakBody': <AppLanguage, String>{
+      AppLanguage.english:
+          'You\'ve reached 14 days! Want to keep your Al-Mulk streak?',
+      AppLanguage.arabic: 'وصلت إلى ١٤ يومًا! أتريد متابعة الملك؟',
+    },
+    'settings.previewNotif': <AppLanguage, String>{
+      AppLanguage.english: 'Preview lock-screen notifications',
+      AppLanguage.arabic: 'معاينة إشعارات شاشة القفل',
     },
 
     // Prayer names
