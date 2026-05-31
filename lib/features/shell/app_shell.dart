@@ -5,10 +5,10 @@ import '../../core/state/app_state.dart';
 import '../../core/state/audio_state.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/widgets/animated_background.dart';
-import '../audio/audio_screen.dart';
 import '../audio/mini_player.dart';
 import '../duas/duas_screen.dart';
 import '../home/home_screen.dart';
+import '../prayer/prayer_screen.dart';
 import '../profile/profile_screen.dart';
 import '../quran/quran_screen.dart';
 import 'glass_nav_bar.dart';
@@ -27,7 +27,7 @@ class AppShell extends StatelessWidget {
       HomeScreen(),
       QuranScreen(),
       DuasScreen(),
-      AudioScreen(),
+      PrayerScreen(),
       ProfileScreen(),
     ];
 

@@ -54,6 +54,10 @@ class Translations {
       AppLanguage.english: 'Audio',
       AppLanguage.arabic: 'الصوت',
     },
+    'tab.prayer': <AppLanguage, String>{
+      AppLanguage.english: 'Prayer',
+      AppLanguage.arabic: 'الصلاة',
+    },
     'tab.profile': <AppLanguage, String>{
       AppLanguage.english: 'Profile',
       AppLanguage.arabic: 'الملف الشخصي',
@@ -688,6 +692,78 @@ class Translations {
     'settings.previewNotif': <AppLanguage, String>{
       AppLanguage.english: 'Preview lock-screen notifications',
       AppLanguage.arabic: 'معاينة إشعارات شاشة القفل',
+    },
+
+    // Prayer screen
+    'prayer.title': <AppLanguage, String>{
+      AppLanguage.english: 'Prayer',
+      AppLanguage.arabic: 'الصلاة',
+    },
+    'prayer.eyebrow': <AppLanguage, String>{
+      AppLanguage.english: 'TODAY',
+      AppLanguage.arabic: 'اليوم',
+    },
+    'prayer.tabTimes': <AppLanguage, String>{
+      AppLanguage.english: 'Times',
+      AppLanguage.arabic: 'الأوقات',
+    },
+    'prayer.tabQibla': <AppLanguage, String>{
+      AppLanguage.english: 'Qibla',
+      AppLanguage.arabic: 'القبلة',
+    },
+    'prayer.location': <AppLanguage, String>{
+      AppLanguage.english: 'Mecca, Saudi Arabia',
+      AppLanguage.arabic: 'مكة المكرمة، السعودية',
+    },
+    'prayer.method': <AppLanguage, String>{
+      AppLanguage.english: 'Umm al-Qura · Hanafi',
+      AppLanguage.arabic: 'أم القرى · حنفي',
+    },
+    'prayer.arc': <AppLanguage, String>{
+      AppLanguage.english: 'SUN ARC',
+      AppLanguage.arabic: 'قوس الشمس',
+    },
+    'prayer.markFajr': <AppLanguage, String>{
+      AppLanguage.english: 'Fajr',
+      AppLanguage.arabic: 'الفجر',
+    },
+    'prayer.markDhuhr': <AppLanguage, String>{
+      AppLanguage.english: 'Dhuhr',
+      AppLanguage.arabic: 'الظهر',
+    },
+    'prayer.markNow': <AppLanguage, String>{
+      AppLanguage.english: 'Now',
+      AppLanguage.arabic: 'الآن',
+    },
+    'prayer.markMaghrib': <AppLanguage, String>{
+      AppLanguage.english: 'Maghrib',
+      AppLanguage.arabic: 'المغرب',
+    },
+    'prayer.nowPill': <AppLanguage, String>{
+      AppLanguage.english: 'NOW',
+      AppLanguage.arabic: 'الآن',
+    },
+
+    // Qibla
+    'qibla.direction': <AppLanguage, String>{
+      AppLanguage.english: 'QIBLA DIRECTION',
+      AppLanguage.arabic: 'اتجاه القبلة',
+    },
+    'qibla.alignTurn': <AppLanguage, String>{
+      AppLanguage.english: 'Turn',
+      AppLanguage.arabic: 'استدر',
+    },
+    'qibla.distance': <AppLanguage, String>{
+      AppLanguage.english: 'DISTANCE',
+      AppLanguage.arabic: 'المسافة',
+    },
+    'qibla.distanceValue': <AppLanguage, String>{
+      AppLanguage.english: '8,210 km',
+      AppLanguage.arabic: '٨٬٢١٠ كم',
+    },
+    'qibla.offset': <AppLanguage, String>{
+      AppLanguage.english: 'MAGNETIC OFFSET',
+      AppLanguage.arabic: 'انحراف مغناطيسي',
     },
 
     // Prayer names
