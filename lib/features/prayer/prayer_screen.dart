@@ -138,6 +138,7 @@ class _PrayerTimes extends StatefulWidget {
 
 class _PrayerTimesState extends State<_PrayerTimes> {
   DailyPrayerTimes? _times;
+  bool _loading = true;
   // Static fallback (Mecca local) when adhan_dart is unavailable on web.
   static const List<_Prayer> _fallback = <_Prayer>[
     _Prayer('Fajr', 'الفجر', '05:12', 'prayer.fajr', false, false, false),
@@ -155,12 +156,19 @@ class _PrayerTimesState extends State<_PrayerTimes> {
   }
 
   Future<void> _load() async {
-    if (kIsWeb) return; // geolocator is mobile-only
+    if (kIsWeb) {
+      setState(() => _loading = false);
+      return; // geolocator is mobile-only
+    }
+    setState(() => _loading = true);
     try {
       final DailyPrayerTimes t =
-          await PrayerTimesService.instance.getToday();
+          await PrayerTimesService.instance.getToday(forceLocate: true);
       if (mounted) setState(() => _times = t);
-    } catch (_) {}
+    } catch (_) {
+    } finally {
+      if (mounted) setState(() => _loading = false);
+    }
   }
 
   List<_Prayer> _liveList() {
@@ -191,7 +199,8 @@ class _PrayerTimesState extends State<_PrayerTimes> {
 
   @override
   Widget build(BuildContext context) {
-    final List<_Prayer> _prayers = _liveList();
+    final List<_Prayer> prayers = _liveList();
+    final bool notLocated = !kIsWeb && (_times == null || !_times!.located);
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 18),
       child: Column(
@@ -204,23 +213,47 @@ class _PrayerTimesState extends State<_PrayerTimes> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    Text(
-                      _locationLabel(context),
-                      style: AppTypography.bodySmall.copyWith(
-                        color: AppColors.textPrimary,
-                        fontWeight: FontWeight.w500,
-                        fontSize: 13,
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Row(
+                        children: <Widget>[
+                          if (_loading)
+                            const SizedBox(
+                              width: 12,
+                              height: 12,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 1.6,
+                                color: AppColors.gold,
+                              ),
+                            )
+                          else
+                            const Icon(Icons.location_on_rounded,
+                                size: 13, color: AppColors.gold),
+                          const SizedBox(width: 6),
+                          Flexible(
+                            child: Text(
+                              _loading
+                                  ? context.t('prayer.locating')
+                                  : _locationLabel(context),
+                              overflow: TextOverflow.ellipsis,
+                              style: AppTypography.bodySmall.copyWith(
+                                color: AppColors.textPrimary,
+                                fontWeight: FontWeight.w500,
+                                fontSize: 13,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
-                    ),
-                    const SizedBox(height: 1),
-                    Text(
-                      context.t('prayer.method'),
-                      style: AppTypography.caption.copyWith(fontSize: 11),
-                    ),
-                  ],
+                      const SizedBox(height: 1),
+                      Text(
+                        context.t('prayer.method'),
+                        style: AppTypography.caption.copyWith(fontSize: 11),
+                      ),
+                    ],
+                  ),
                 ),
                 Text(
                   Fmt.headerDate(context, DateTime.now()),
@@ -229,6 +262,43 @@ class _PrayerTimesState extends State<_PrayerTimes> {
               ],
             ),
           ),
+          // "Enable location" banner when we fell back to default coords
+          if (notLocated && !_loading)
+            GestureDetector(
+              onTap: _load,
+              child: Container(
+                margin: const EdgeInsets.only(bottom: 12),
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                decoration: BoxDecoration(
+                  color: AppColors.accentBg,
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(color: AppColors.line, width: 0.7),
+                ),
+                child: Row(
+                  children: <Widget>[
+                    const Icon(Icons.my_location_rounded,
+                        size: 18, color: AppColors.gold),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        context.t('prayer.enableLocation'),
+                        style: AppTypography.bodySmall.copyWith(
+                          color: AppColors.textSecondary,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ),
+                    Text(
+                      context.t('prayer.enableCta'),
+                      style: AppTypography.button.copyWith(
+                        color: AppColors.gold,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
           // Sun arc card
           Container(
             padding: const EdgeInsets.fromLTRB(16, 18, 16, 16),
@@ -282,9 +352,9 @@ class _PrayerTimesState extends State<_PrayerTimes> {
               boxShadow: AppColors.cardShadow,
             ),
             child: Column(
-              children: List<Widget>.generate(_prayers.length, (int i) {
-                final _Prayer p = _prayers[i];
-                final bool isLast = i == _prayers.length - 1;
+              children: List<Widget>.generate(prayers.length, (int i) {
+                final _Prayer p = prayers[i];
+                final bool isLast = i == prayers.length - 1;
                 return _PrayerRow(prayer: p, isLast: isLast);
               }),
             ),

@@ -16,6 +16,7 @@ class DailyPrayerTimes {
     required this.latitude,
     required this.longitude,
     required this.locationLabel,
+    required this.located,
   });
 
   final DateTime date;
@@ -28,6 +29,8 @@ class DailyPrayerTimes {
   final double latitude;
   final double longitude;
   final String locationLabel;
+  /// True when real device coordinates were used (not the Mecca fallback).
+  final bool located;
 
   /// Returns the prayer that is "current" right now (Now is after its start
   /// time, but before the next prayer). Sunrise is skipped — it splits Fajr
@@ -111,53 +114,78 @@ class PrayerTimesService {
     final double? cachedLat = s.getPref<num>('coord_lat', fallback: null)?.toDouble();
     final double? cachedLng = s.getPref<num>('coord_lng', fallback: null)?.toDouble();
     final String? cachedLabel = s.getPref<String>('coord_label', fallback: null);
-
-    // Request fresh location in the background (don't block prayer times
-    // calculation on permission grant).
-    _refreshCoords();
-
     if (cachedLat != null && cachedLng != null) {
       return (lat: cachedLat, lng: cachedLng, label: cachedLabel ?? '');
     }
     return (lat: _defaultLat, lng: _defaultLng, label: _defaultLabel);
   }
 
-  Future<void> _refreshCoords() async {
+  /// Current permission/location status, used by the UI to decide whether to
+  /// show "enable location for accurate times".
+  Future<bool> hasLocationAccess() async {
+    final LocationPermission perm = await Geolocator.checkPermission();
+    return perm == LocationPermission.always ||
+        perm == LocationPermission.whileInUse;
+  }
+
+  /// Requests permission (showing the system dialog if needed) and returns a
+  /// fresh position, caching it. Returns null if denied or unavailable.
+  Future<Position?> resolvePosition() async {
     try {
+      if (!await Geolocator.isLocationServiceEnabled()) return null;
       LocationPermission perm = await Geolocator.checkPermission();
       if (perm == LocationPermission.denied) {
         perm = await Geolocator.requestPermission();
       }
       if (perm == LocationPermission.denied ||
           perm == LocationPermission.deniedForever) {
-        return;
+        return null;
       }
-      final bool enabled = await Geolocator.isLocationServiceEnabled();
-      if (!enabled) return;
-
-      final Position pos = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.low,
-        timeLimit: const Duration(seconds: 10),
-      );
-      await StorageService.instance.setPref('coord_lat', pos.latitude);
-      await StorageService.instance.setPref('coord_lng', pos.longitude);
-      // We don't reverse-geocode here (would add a heavy dep). Show a simple
-      // "Latitude, Longitude" fallback label instead.
-      final String lat = pos.latitude.toStringAsFixed(2);
-      final String lng = pos.longitude.toStringAsFixed(2);
-      await StorageService.instance.setPref('coord_label', '$lat°, $lng°');
+      Position? pos;
+      try {
+        pos = await Geolocator.getCurrentPosition(
+          desiredAccuracy: LocationAccuracy.low,
+          timeLimit: const Duration(seconds: 15),
+        );
+      } catch (_) {
+        pos = await Geolocator.getLastKnownPosition();
+      }
+      if (pos != null) {
+        await StorageService.instance.setPref('coord_lat', pos.latitude);
+        await StorageService.instance.setPref('coord_lng', pos.longitude);
+        await StorageService.instance.setPref(
+          'coord_label',
+          '${pos.latitude.toStringAsFixed(3)}°, ${pos.longitude.toStringAsFixed(3)}°',
+        );
+      }
+      return pos;
     } catch (_) {
-      // Silent — fall back to cached or default coords.
+      return null;
     }
   }
 
-  Future<DailyPrayerTimes> getToday() async {
+  /// Computes today's times. If [forceLocate] is true (default), it first
+  /// awaits a fresh location (requesting permission), so the very first render
+  /// already uses real coordinates instead of the Mecca fallback.
+  Future<DailyPrayerTimes> getToday({bool forceLocate = true}) async {
+    bool located = false;
+    if (forceLocate) {
+      final Position? pos = await resolvePosition();
+      located = pos != null;
+    } else {
+      located = await hasLocationAccess();
+    }
+
     final ({double lat, double lng, String label}) coords = await _getCoords();
+    // If we have cached/real coords (not the Mecca default), mark as located.
+    final bool isDefault =
+        coords.lat == _defaultLat && coords.lng == _defaultLng;
     return _computeFor(
       lat: coords.lat,
       lng: coords.lng,
       label: coords.label.isEmpty ? _defaultLabel : coords.label,
       date: DateTime.now(),
+      located: located && !isDefault,
     );
   }
 
@@ -166,6 +194,7 @@ class PrayerTimesService {
     required double lng,
     required String label,
     required DateTime date,
+    required bool located,
   }) {
     final adhan.Coordinates coords = adhan.Coordinates(lat, lng);
     // Muslim World League is a sensible global default; Shafi madhab for Asr.
@@ -192,6 +221,7 @@ class PrayerTimesService {
       latitude: lat,
       longitude: lng,
       locationLabel: label,
+      located: located,
     );
   }
 }

@@ -715,6 +715,18 @@ class Translations {
       AppLanguage.english: 'Mecca, Saudi Arabia',
       AppLanguage.arabic: 'مكة المكرمة، السعودية',
     },
+    'prayer.locating': <AppLanguage, String>{
+      AppLanguage.english: 'Finding your location…',
+      AppLanguage.arabic: 'جارٍ تحديد موقعك…',
+    },
+    'prayer.enableLocation': <AppLanguage, String>{
+      AppLanguage.english: 'Using default times. Enable location for accuracy.',
+      AppLanguage.arabic: 'يتم استخدام أوقات افتراضية. فعّل الموقع للدقة.',
+    },
+    'prayer.enableCta': <AppLanguage, String>{
+      AppLanguage.english: 'Enable',
+      AppLanguage.arabic: 'تفعيل',
+    },
     'prayer.method': <AppLanguage, String>{
       AppLanguage.english: 'Umm al-Qura · Hanafi',
       AppLanguage.arabic: 'أم القرى · حنفي',

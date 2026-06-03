@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -8,6 +9,7 @@ import '../../core/l10n/format_helpers.dart';
 import '../../core/l10n/translations.dart';
 import '../../core/models/dua.dart';
 import '../../core/models/surah.dart';
+import '../../core/services/prayer_times_service.dart';
 import '../../core/state/app_state.dart';
 import '../../core/state/quran_state.dart';
 import '../../core/state/settings_state.dart';
@@ -125,10 +127,16 @@ class _GreetingHeader extends StatelessWidget {
 }
 
 // ─── 2. Next-prayer hero ─────────────────────────────────────────────────
-class _NextPrayerHero extends StatelessWidget {
+class _NextPrayerHero extends StatefulWidget {
   const _NextPrayerHero();
 
-  static const List<_Prayer> _prayers = <_Prayer>[
+  @override
+  State<_NextPrayerHero> createState() => _NextPrayerHeroState();
+}
+
+class _NextPrayerHeroState extends State<_NextPrayerHero> {
+  // Falls back to these until real, location-based times load.
+  static const List<_Prayer> _defaultPrayers = <_Prayer>[
     _Prayer('Fajr', 'الفجر', '05:12', 'prayer.fajr'),
     _Prayer('Sunrise', 'الشروق', '06:38', 'prayer.sunrise'),
     _Prayer('Dhuhr', 'الظهر', '12:30', 'prayer.dhuhr'),
@@ -136,6 +144,33 @@ class _NextPrayerHero extends StatelessWidget {
     _Prayer('Maghrib', 'المغرب', '18:22', 'prayer.maghrib'),
     _Prayer('Isha', 'العشاء', '19:55', 'prayer.isha'),
   ];
+
+  List<_Prayer> _prayers = _defaultPrayers;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadTimes();
+  }
+
+  Future<void> _loadTimes() async {
+    if (kIsWeb) return;
+    try {
+      final DailyPrayerTimes t =
+          await PrayerTimesService.instance.getToday(forceLocate: true);
+      if (!mounted) return;
+      setState(() {
+        _prayers = <_Prayer>[
+          _Prayer('Fajr', 'الفجر', t.timeFor('Fajr'), 'prayer.fajr'),
+          _Prayer('Sunrise', 'الشروق', t.timeFor('Sunrise'), 'prayer.sunrise'),
+          _Prayer('Dhuhr', 'الظهر', t.timeFor('Dhuhr'), 'prayer.dhuhr'),
+          _Prayer('Asr', 'العصر', t.timeFor('Asr'), 'prayer.asr'),
+          _Prayer('Maghrib', 'المغرب', t.timeFor('Maghrib'), 'prayer.maghrib'),
+          _Prayer('Isha', 'العشاء', t.timeFor('Isha'), 'prayer.isha'),
+        ];
+      });
+    } catch (_) {}
+  }
 
   int _currentIndex() {
     final TimeOfDay now = TimeOfDay.now();
