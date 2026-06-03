@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../../../core/data/dua_data.dart';
 import '../../../core/models/dua.dart';
-import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/widgets/arabic_pattern.dart';
 import '../../../core/widgets/glass_card.dart';

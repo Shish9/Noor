@@ -4,7 +4,6 @@ import 'package:flutter_animate/flutter_animate.dart';
 import '../../core/data/dua_data.dart';
 import '../../core/l10n/translations.dart';
 import '../../core/models/dua.dart';
-import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_typography.dart';
 import 'widgets/dua_category_card.dart';
 
