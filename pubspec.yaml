@@ -49,7 +49,7 @@ dependencies:
   # Sharing
   share_plus: ^9.0.0
   screenshot: ^3.0.0
-  image_gallery_saver_plus: ^3.0.5
+  gal: ^2.3.0
 
   # Location / Time
   geolocator: ^12.0.0

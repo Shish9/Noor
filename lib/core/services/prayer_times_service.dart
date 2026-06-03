@@ -136,10 +136,8 @@ class PrayerTimesService {
       if (!enabled) return;
 
       final Position pos = await Geolocator.getCurrentPosition(
-        locationSettings: const LocationSettings(
-          accuracy: LocationAccuracy.low,
-          timeLimit: Duration(seconds: 10),
-        ),
+        desiredAccuracy: LocationAccuracy.low,
+        timeLimit: const Duration(seconds: 10),
       );
       await StorageService.instance.setPref('coord_lat', pos.latitude);
       await StorageService.instance.setPref('coord_lng', pos.longitude);
@@ -170,28 +168,27 @@ class PrayerTimesService {
     required DateTime date,
   }) {
     final adhan.Coordinates coords = adhan.Coordinates(lat, lng);
-    // Muslim World League is a sensible global default.
+    // Muslim World League is a sensible global default; Shafi madhab for Asr.
     final adhan.CalculationParameters params =
-        adhan.CalculationMethod.muslimWorldLeague();
+        adhan.CalculationMethodParameters.muslimWorldLeague();
     params.madhab = adhan.Madhab.shafi;
     final adhan.PrayerTimes times = adhan.PrayerTimes(
       coordinates: coords,
       date: date,
       calculationParameters: params,
-      utcOffset: date.timeZoneOffset,
     );
 
-    DateTime _local(DateTime? t) =>
-        (t ?? date).toLocal();
+    // adhan_dart returns UTC DateTimes — convert to the device's local zone.
+    DateTime toLocal(DateTime t) => t.toLocal();
 
     return DailyPrayerTimes(
       date: date,
-      fajr: _local(times.fajr),
-      sunrise: _local(times.sunrise),
-      dhuhr: _local(times.dhuhr),
-      asr: _local(times.asr),
-      maghrib: _local(times.maghrib),
-      isha: _local(times.isha),
+      fajr: toLocal(times.fajr),
+      sunrise: toLocal(times.sunrise),
+      dhuhr: toLocal(times.dhuhr),
+      asr: toLocal(times.asr),
+      maghrib: toLocal(times.maghrib),
+      isha: toLocal(times.isha),
       latitude: lat,
       longitude: lng,
       locationLabel: label,

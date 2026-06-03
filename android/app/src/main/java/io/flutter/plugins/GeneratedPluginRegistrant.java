@@ -41,14 +41,14 @@ public final class GeneratedPluginRegistrant {
       Log.e(TAG, "Error registering plugin flutter_secure_storage, com.it_nomads.fluttersecurestorage.FlutterSecureStoragePlugin", e);
     }
     try {
+      flutterEngine.getPlugins().add(new studio.midoridesign.gal.GalPlugin());
+    } catch (Exception e) {
+      Log.e(TAG, "Error registering plugin gal, studio.midoridesign.gal.GalPlugin", e);
+    }
+    try {
       flutterEngine.getPlugins().add(new com.baseflow.geolocator.GeolocatorPlugin());
     } catch (Exception e) {
       Log.e(TAG, "Error registering plugin geolocator_android, com.baseflow.geolocator.GeolocatorPlugin", e);
-    }
-    try {
-      flutterEngine.getPlugins().add(new com.example.image_gallery_saver_plus.ImageGallerySaverPlusPlugin());
-    } catch (Exception e) {
-      Log.e(TAG, "Error registering plugin image_gallery_saver_plus, com.example.image_gallery_saver_plus.ImageGallerySaverPlusPlugin", e);
     }
     try {
       flutterEngine.getPlugins().add(new com.ryanheise.just_audio.JustAudioPlugin());

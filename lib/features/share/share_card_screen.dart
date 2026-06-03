@@ -1,6 +1,8 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:image_gallery_saver_plus/image_gallery_saver_plus.dart';
+import 'package:gal/gal.dart';
 import 'package:screenshot/screenshot.dart';
 import 'package:share_plus/share_plus.dart';
 
@@ -41,15 +43,19 @@ class _ShareCardScreenState extends State<ShareCardScreen> {
     try {
       final Uint8List? bytes = await _capture();
       if (bytes == null) return;
-      final dynamic result = await ImageGallerySaverPlus.saveImage(
+      // gal handles its own permission request + writes to the gallery.
+      await Gal.putImageBytes(
         bytes,
-        quality: 95,
-        name: 'quranapp_${DateTime.now().millisecondsSinceEpoch}',
+        name: 'noor_${DateTime.now().millisecondsSinceEpoch}',
       );
       if (!mounted) return;
-      final bool ok = result is Map && (result['isSuccess'] as bool? ?? false);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(ok ? 'Saved to gallery 🤍' : 'Save failed')),
+        const SnackBar(content: Text('Saved to gallery 🤍')),
+      );
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Save failed')),
       );
     } finally {
       if (mounted) setState(() => _saving = false);

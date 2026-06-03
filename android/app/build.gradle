@@ -33,7 +33,7 @@ if (keystorePropertiesFile.exists()) {
 
 android {
     namespace "app.noor"
-    compileSdk 34
+    compileSdk 35
     // No native C/C++ code in this app — NDK intentionally omitted so the
     // build doesn't require downloading/accepting the NDK package.
 
@@ -79,9 +79,10 @@ android {
             signingConfig keystorePropertiesFile.exists()
                 ? signingConfigs.release
                 : signingConfigs.debug
-            minifyEnabled true
-            shrinkResources true
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            // Minification disabled for a reliable build. Re-enable later
+            // with verified keep-rules if you want a smaller APK.
+            minifyEnabled false
+            shrinkResources false
         }
     }
 }

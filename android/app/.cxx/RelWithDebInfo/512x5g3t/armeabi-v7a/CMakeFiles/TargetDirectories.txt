@@ -1,0 +1,2 @@
+E:/QuranApp/android/app/.cxx/RelWithDebInfo/512x5g3t/armeabi-v7a/CMakeFiles/edit_cache.dir
+E:/QuranApp/android/app/.cxx/RelWithDebInfo/512x5g3t/armeabi-v7a/CMakeFiles/rebuild_cache.dir
