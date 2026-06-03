@@ -1,5 +1,8 @@
 package app.noor
 
-import io.flutter.embedding.android.FlutterActivity
+import com.ryanheise.audioservice.AudioServiceActivity
 
-class MainActivity : FlutterActivity()
+// Must extend AudioServiceActivity (not FlutterActivity) so just_audio_background
+// / audio_service can attach to the cached Flutter engine for lock-screen and
+// background playback.
+class MainActivity : AudioServiceActivity()

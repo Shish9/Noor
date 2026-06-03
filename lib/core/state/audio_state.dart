@@ -1,9 +1,11 @@
 import 'package:flutter/foundation.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:just_audio_background/just_audio_background.dart';
 
 import '../data/reciter_data.dart';
 import '../data/surah_data.dart';
 import '../models/reciter.dart';
+import '../models/surah.dart';
 import '../services/storage_service.dart';
 
 /// Per-ayah Quran audio player.
@@ -115,7 +117,20 @@ class AudioState extends ChangeNotifier {
     notifyListeners();
 
     try {
-      await _player.setUrl(use.ayahUrl(surahNumber, ayahNumber));
+      final Surah surah = SurahData.byNumber(surahNumber);
+      // A MediaItem tag is required by just_audio_background and powers the
+      // lock-screen / notification controls (surah name + reciter).
+      await _player.setAudioSource(
+        AudioSource.uri(
+          Uri.parse(use.ayahUrl(surahNumber, ayahNumber)),
+          tag: MediaItem(
+            id: '$surahNumber:$ayahNumber:${use.id}',
+            album: use.name,
+            title: '${surah.nameArabic} · ${surah.nameTransliteration}',
+            artist: 'Ayah $ayahNumber',
+          ),
+        ),
+      );
       await _player.setSpeed(_speed);
       await _player.play();
       await StorageService.instance.addRecentlyPlayed(
