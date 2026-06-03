@@ -1,2 +1,0 @@
-E:/QuranApp/android/app/.cxx/RelWithDebInfo/512x5g3t/x86_64/CMakeFiles/edit_cache.dir
-E:/QuranApp/android/app/.cxx/RelWithDebInfo/512x5g3t/x86_64/CMakeFiles/rebuild_cache.dir
