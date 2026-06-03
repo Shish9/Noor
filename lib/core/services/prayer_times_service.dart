@@ -1,4 +1,5 @@
 import 'package:adhan_dart/adhan_dart.dart' as adhan;
+import 'package:flutter/foundation.dart';
 import 'package:geolocator/geolocator.dart';
 
 import 'storage_service.dart';
@@ -141,14 +142,16 @@ class PrayerTimesService {
           perm == LocationPermission.deniedForever) {
         return null;
       }
-      Position? pos;
+      // Last-known is instant and the device already has a fix; use it first,
+      // then try a fresh reading to refine.
+      Position? pos = await Geolocator.getLastKnownPosition();
       try {
         pos = await Geolocator.getCurrentPosition(
           desiredAccuracy: LocationAccuracy.low,
-          timeLimit: const Duration(seconds: 15),
+          timeLimit: const Duration(seconds: 12),
         );
       } catch (_) {
-        pos = await Geolocator.getLastKnownPosition();
+        // keep last-known
       }
       if (pos != null) {
         await StorageService.instance.setPref('coord_lat', pos.latitude);
@@ -180,13 +183,20 @@ class PrayerTimesService {
     // If we have cached/real coords (not the Mecca default), mark as located.
     final bool isDefault =
         coords.lat == _defaultLat && coords.lng == _defaultLng;
-    return _computeFor(
+    final DailyPrayerTimes result = _computeFor(
       lat: coords.lat,
       lng: coords.lng,
       label: coords.label.isEmpty ? _defaultLabel : coords.label,
       date: DateTime.now(),
       located: located && !isDefault,
     );
+    // Diagnostic (visible in `adb logcat | grep NOOR_PRAYER`).
+    debugPrint('NOOR_PRAYER coords=${coords.lat},${coords.lng} '
+        'located=${result.located} '
+        'fajr=${result.timeFor('Fajr')} dhuhr=${result.timeFor('Dhuhr')} '
+        'asr=${result.timeFor('Asr')} maghrib=${result.timeFor('Maghrib')} '
+        'isha=${result.timeFor('Isha')} tzOffset=${DateTime.now().timeZoneOffset}');
+    return result;
   }
 
   DailyPrayerTimes _computeFor({
@@ -197,9 +207,9 @@ class PrayerTimesService {
     required bool located,
   }) {
     final adhan.Coordinates coords = adhan.Coordinates(lat, lng);
-    // Muslim World League is a sensible global default; Shafi madhab for Asr.
+    // Umm al-Qura (Makkah): Fajr 18.5°, Isha 90 min after Maghrib. Shafi Asr.
     final adhan.CalculationParameters params =
-        adhan.CalculationMethodParameters.muslimWorldLeague();
+        adhan.CalculationMethodParameters.ummAlQura();
     params.madhab = adhan.Madhab.shafi;
     final adhan.PrayerTimes times = adhan.PrayerTimes(
       coordinates: coords,
