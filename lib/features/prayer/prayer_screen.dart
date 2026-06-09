@@ -1,12 +1,16 @@
+import 'dart:async';
 import 'dart:math' as math;
 import 'dart:ui' show PathMetric;
 
+import 'package:adhan_dart/adhan_dart.dart' as adhan;
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
+import 'package:flutter_compass/flutter_compass.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/l10n/format_helpers.dart';
 import '../../core/l10n/translations.dart';
+import '../../core/services/kurdistan_prayer_data.dart';
 import '../../core/services/prayer_times_service.dart';
 import '../../core/state/settings_state.dart';
 import '../../core/theme/app_colors.dart';
@@ -139,6 +143,7 @@ class _PrayerTimes extends StatefulWidget {
 class _PrayerTimesState extends State<_PrayerTimes> {
   DailyPrayerTimes? _times;
   bool _loading = true;
+  String? _lastConfigKey;
   // Static fallback (Mecca local) when adhan_dart is unavailable on web.
   static const List<_Prayer> _fallback = <_Prayer>[
     _Prayer('Fajr', 'الفجر', '05:12', 'prayer.fajr', false, false, false),
@@ -192,13 +197,33 @@ class _PrayerTimesState extends State<_PrayerTimes> {
     ];
   }
 
-  String _locationLabel(BuildContext context) =>
-      _times?.locationLabel.isNotEmpty == true
-          ? _times!.locationLabel
-          : context.t('prayer.location');
+  String _locationLabel(BuildContext context) {
+    final DailyPrayerTimes? t = _times;
+    if (t == null) return context.t('prayer.location');
+    // Localized Kurdistan city name when the times came from the city table.
+    if (t.cityId != null) {
+      final KurdistanCity? c = KurdistanPrayerData.cityById(t.cityId!);
+      if (c != null) {
+        return context.watch<SettingsState>().isRtl ? c.ar : c.en;
+      }
+    }
+    return t.locationLabel.isNotEmpty
+        ? t.locationLabel
+        : context.t('prayer.location');
+  }
 
   @override
   Widget build(BuildContext context) {
+    // Recompute when any prayer-time setting changes.
+    final String cfg = context.watch<SettingsState>().prayerConfigKey;
+    if (_lastConfigKey == null) {
+      _lastConfigKey = cfg;
+    } else if (_lastConfigKey != cfg) {
+      _lastConfigKey = cfg;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _load();
+      });
+    }
     final List<_Prayer> prayers = _liveList();
     final bool notLocated = !kIsWeb && (_times == null || !_times!.located);
     return Padding(
@@ -594,41 +619,149 @@ class _QiblaCompass extends StatefulWidget {
   State<_QiblaCompass> createState() => _QiblaCompassState();
 }
 
-class _QiblaCompassState extends State<_QiblaCompass>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _ctrl;
-  double _bearing = 45;
-  final math.Random _rand = math.Random(7);
+class _QiblaCompassState extends State<_QiblaCompass> {
+  // Live magnetic-north heading from the device compass (degrees, 0–360).
+  double? _heading;
+  // True-north bearing from the user's location to the Kaaba (degrees).
+  double? _qiblaBearing;
+  // Great-circle distance to the Kaaba (km).
+  double? _distanceKm;
+  bool _located = false;
+  bool _loading = true;
+  bool _noSensor = false;
+  StreamSubscription<CompassEvent>? _sub;
 
   @override
   void initState() {
     super.initState();
-    _ctrl = AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 3),
-    )..repeat();
-    _ctrl.addListener(() {
-      // Subtle wobble simulating compass drift
+    _initLocation();
+    _initCompass();
+  }
+
+  Future<void> _initLocation() async {
+    if (kIsWeb) {
+      if (mounted) setState(() => _loading = false);
+      return;
+    }
+    try {
+      final DailyPrayerTimes t =
+          await PrayerTimesService.instance.getToday(forceLocate: true);
+      if (!mounted) return;
       setState(() {
-        _bearing += (_rand.nextDouble() - 0.5) * 0.4;
+        _qiblaBearing =
+            adhan.Qibla.qibla(adhan.Coordinates(t.latitude, t.longitude));
+        _distanceKm =
+            _haversineKm(t.latitude, t.longitude, 21.4225241, 39.8261818);
+        _located = t.located;
+        _loading = false;
       });
+    } catch (_) {
+      if (mounted) setState(() => _loading = false);
+    }
+  }
+
+  void _initCompass() {
+    if (kIsWeb) return;
+    final Stream<CompassEvent>? events = FlutterCompass.events;
+    if (events == null) {
+      setState(() => _noSensor = true);
+      return;
+    }
+    _sub = events.listen((CompassEvent e) {
+      if (!mounted) return;
+      final double? h = e.heading;
+      if (h == null) {
+        setState(() => _noSensor = true);
+      } else {
+        setState(() {
+          _heading = h;
+          _noSensor = false;
+        });
+      }
     });
   }
 
   @override
   void dispose() {
-    _ctrl.dispose();
+    _sub?.cancel();
     super.dispose();
   }
 
-  static const double _qiblaAngle = 58.3;
+  double _haversineKm(double lat1, double lon1, double lat2, double lon2) {
+    const double r = 6371.0;
+    final double dLat = (lat2 - lat1) * math.pi / 180;
+    final double dLon = (lon2 - lon1) * math.pi / 180;
+    final double a = math.sin(dLat / 2) * math.sin(dLat / 2) +
+        math.cos(lat1 * math.pi / 180) *
+            math.cos(lat2 * math.pi / 180) *
+            math.sin(dLon / 2) *
+            math.sin(dLon / 2);
+    return r * 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a));
+  }
+
+  /// Signed angle (−180..180) the user must turn to face the Qibla.
+  /// Positive = turn right (clockwise).
+  double _turn() {
+    double d = ((_qiblaBearing ?? 0) - (_heading ?? 0)) % 360;
+    if (d > 180) d -= 360;
+    if (d < -180) d += 360;
+    return d;
+  }
+
+  String _cardinal(double deg, bool ar) {
+    const List<String> en = <String>[
+      'N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW',
+    ];
+    const List<String> arr = <String>[
+      'ش', 'ش.ق', 'ق', 'ج.ق', 'ج', 'ج.غ', 'غ', 'ش.غ',
+    ];
+    final int idx = ((((deg % 360) + 22.5) ~/ 45) % 8).toInt();
+    return (ar ? arr : en)[idx];
+  }
 
   @override
   Widget build(BuildContext context) {
     final bool ar = context.watch<SettingsState>().isRtl;
-    final int off = (_qiblaAngle - _bearing < 0
-        ? _qiblaAngle - _bearing + 360
-        : _qiblaAngle - _bearing).round();
+
+    if (_loading) {
+      return const Padding(
+        padding: EdgeInsets.only(top: 90),
+        child: Center(child: CircularProgressIndicator(color: AppColors.gold)),
+      );
+    }
+
+    // Without a real location the bearing would be meaningless.
+    if (!_located || _qiblaBearing == null) {
+      return Padding(
+        padding: const EdgeInsets.fromLTRB(28, 70, 28, 0),
+        child: Column(
+          children: <Widget>[
+            const Icon(Icons.location_off_rounded,
+                color: AppColors.textTertiary, size: 42),
+            const SizedBox(height: 14),
+            Text(
+              context.t('prayer.enableLocation'),
+              textAlign: TextAlign.center,
+              style: AppTypography.bodyMedium
+                  .copyWith(color: AppColors.textSecondary),
+            ),
+            const SizedBox(height: 18),
+            FilledButton(
+              onPressed: () {
+                setState(() => _loading = true);
+                _initLocation();
+              },
+              child: Text(context.t('prayer.enableCta')),
+            ),
+          ],
+        ),
+      );
+    }
+
+    final double bearing = _qiblaBearing!;
+    final double turn = _turn();
+    final bool aligned = turn.abs() < 4;
+    final double dialRotation = -(_heading ?? 0) * math.pi / 180;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 18),
@@ -664,7 +797,7 @@ class _QiblaCompassState extends State<_QiblaCompass>
                     EyebrowKey('qibla.direction'),
                     const SizedBox(height: 6),
                     Text(
-                      '${Fmt.n(context, _qiblaAngle.round())}° ${ar ? "ش.ش" : "NE"}',
+                      '${Fmt.n(context, bearing.round())}° ${_cardinal(bearing, ar)}',
                       style: AppTypography.displayMedium.copyWith(
                         color: AppColors.gold,
                         fontSize: 28,
@@ -682,13 +815,14 @@ class _QiblaCompassState extends State<_QiblaCompass>
                         children: <Widget>[
                           // Rotating dial
                           Transform.rotate(
-                            angle: -_bearing * math.pi / 180,
+                            angle: dialRotation,
                             child: SizedBox(
                               width: 260,
                               height: 260,
                               child: CustomPaint(
                                 painter: _CompassDialPainter(
-                                  qiblaAngle: _qiblaAngle,
+                                  qiblaAngle: bearing,
+                                  aligned: aligned,
                                   isRtl: ar,
                                 ),
                               ),
@@ -707,12 +841,32 @@ class _QiblaCompassState extends State<_QiblaCompass>
                     ),
                     const SizedBox(height: 10),
                     Text(
-                      '${context.t('qibla.alignTurn')} ${Fmt.n(context, off)}°',
+                      aligned
+                          ? context.t('qibla.aligned')
+                          : (turn > 0
+                              ? '${context.t('qibla.turnRight')} ${Fmt.n(context, turn.abs().round())}°'
+                              : '${context.t('qibla.turnLeft')} ${Fmt.n(context, turn.abs().round())}°'),
+                      textAlign: TextAlign.center,
                       style: AppTypography.caption.copyWith(
-                        color: AppColors.textTertiary,
+                        color: aligned
+                            ? AppColors.emeraldGlow
+                            : AppColors.textTertiary,
                         fontSize: 12,
+                        fontWeight:
+                            aligned ? FontWeight.w600 : FontWeight.w400,
                       ),
                     ),
+                    if (_noSensor) ...<Widget>[
+                      const SizedBox(height: 6),
+                      Text(
+                        context.t('qibla.noSensor'),
+                        textAlign: TextAlign.center,
+                        style: AppTypography.caption.copyWith(
+                          color: AppColors.textTertiary,
+                          fontSize: 11,
+                        ),
+                      ),
+                    ],
                   ],
                 ),
               ],
@@ -724,14 +878,16 @@ class _QiblaCompassState extends State<_QiblaCompass>
               Expanded(
                 child: _MetricCard(
                   labelKey: 'qibla.distance',
-                  value: context.t('qibla.distanceValue'),
+                  value: _distanceKm == null
+                      ? '—'
+                      : '${Fmt.n(context, _distanceKm!.round())} ${ar ? "كم" : "km"}',
                 ),
               ),
               const SizedBox(width: 10),
-              const Expanded(
+              Expanded(
                 child: _MetricCard(
-                  labelKey: 'qibla.offset',
-                  value: '−12.4°',
+                  labelKey: 'qibla.bearing',
+                  value: '${Fmt.n(context, bearing.round())}°',
                 ),
               ),
             ],
@@ -772,8 +928,13 @@ class _MetricCard extends StatelessWidget {
 }
 
 class _CompassDialPainter extends CustomPainter {
-  _CompassDialPainter({required this.qiblaAngle, required this.isRtl});
+  _CompassDialPainter({
+    required this.qiblaAngle,
+    required this.aligned,
+    required this.isRtl,
+  });
   final double qiblaAngle;
+  final bool aligned;
   final bool isRtl;
 
   @override
@@ -851,7 +1012,7 @@ class _CompassDialPainter extends CustomPainter {
       Offset(qx, qy),
       14,
       Paint()
-        ..color = AppColors.gold
+        ..color = aligned ? AppColors.emeraldGlow : AppColors.gold
         ..style = PaintingStyle.fill,
     );
     final TextPainter kaaba = TextPainter(

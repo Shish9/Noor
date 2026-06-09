@@ -1,7 +1,7 @@
 name: quran_app
 description: "Noor — A premium modern Islamic app for Quran reading, duas, and daily spiritual engagement."
 publish_to: 'none'
-version: 1.0.0+1
+version: 1.0.12+12
 
 environment:
   sdk: '>=3.3.0 <4.0.0'
@@ -54,6 +54,7 @@ dependencies:
   # Location / Time
   geolocator: ^12.0.0
   adhan_dart: ^2.0.0
+  flutter_compass: ^0.8.1
   intl: ^0.19.0
 
   # Misc

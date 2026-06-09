@@ -23,41 +23,15 @@ class AppShell extends StatelessWidget {
     final AppState app = context.watch<AppState>();
     final AudioState audio = context.watch<AudioState>();
 
-    final List<Widget> tabs = const <Widget>[
-      HomeScreen(),
-      QuranScreen(),
-      DuasScreen(),
-      PrayerScreen(),
-      ProfileScreen(),
-    ];
-
     return Scaffold(
       backgroundColor: AppColors.background,
       extendBody: true,
       body: Stack(
         children: <Widget>[
-          const AnimatedBackground(particleCount: 18),
-          AnimatedSwitcher(
-            duration: const Duration(milliseconds: 350),
-            switchInCurve: Curves.easeOutCubic,
-            switchOutCurve: Curves.easeInCubic,
-            transitionBuilder: (Widget child, Animation<double> a) {
-              return FadeTransition(
-                opacity: a,
-                child: SlideTransition(
-                  position: Tween<Offset>(
-                    begin: const Offset(0, 0.015),
-                    end: Offset.zero,
-                  ).animate(a),
-                  child: child,
-                ),
-              );
-            },
-            child: KeyedSubtree(
-              key: ValueKey<int>(app.currentTab),
-              child: tabs[app.currentTab],
-            ),
-          ),
+          const AnimatedBackground(particleCount: 12),
+          // Tabs are kept alive (built once, on first visit) so switching is
+          // instant and scroll position / loaded data are preserved.
+          _LazyTabs(current: app.currentTab),
           Positioned(
             left: 0,
             right: 0,
@@ -75,6 +49,52 @@ class AppShell extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+/// Keeps each tab's state alive after first visit. Unvisited tabs render as a
+/// cheap placeholder until the user opens them, so startup stays light while
+/// switching between already-opened tabs is instant.
+class _LazyTabs extends StatefulWidget {
+  const _LazyTabs({required this.current});
+  final int current;
+
+  @override
+  State<_LazyTabs> createState() => _LazyTabsState();
+}
+
+class _LazyTabsState extends State<_LazyTabs> {
+  static const List<Widget> _tabs = <Widget>[
+    HomeScreen(),
+    QuranScreen(),
+    DuasScreen(),
+    PrayerScreen(),
+    ProfileScreen(),
+  ];
+
+  final Set<int> _loaded = <int>{};
+
+  @override
+  void initState() {
+    super.initState();
+    _loaded.add(widget.current);
+  }
+
+  @override
+  void didUpdateWidget(covariant _LazyTabs oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    _loaded.add(widget.current);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return IndexedStack(
+      index: widget.current,
+      children: <Widget>[
+        for (int i = 0; i < _tabs.length; i++)
+          if (_loaded.contains(i)) _tabs[i] else const SizedBox.shrink(),
+      ],
     );
   }
 }

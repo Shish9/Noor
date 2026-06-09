@@ -45,14 +45,11 @@ class DuasScreen extends StatelessWidget {
               delegate: SliverChildBuilderDelegate(
                 (BuildContext _, int i) {
                   final DuaCategory cat = DuaData.categories[i];
+                  // Light entrance only (no per-card scale) — keeps first open
+                  // of the grid smooth.
                   return DuaCategoryCard(category: cat).animate().fadeIn(
-                        duration: 320.ms,
-                        delay: (i * 40).ms,
-                      ).scale(
-                        begin: const Offset(0.95, 0.95),
-                        end: const Offset(1, 1),
-                        duration: 320.ms,
-                        delay: (i * 40).ms,
+                        duration: 220.ms,
+                        delay: (i * 22).ms,
                       );
                 },
                 childCount: DuaData.categories.length,

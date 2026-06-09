@@ -5,6 +5,8 @@ import '../../core/data/reciter_data.dart';
 import '../../core/l10n/app_language.dart';
 import '../../core/l10n/translations.dart';
 import '../../core/models/reciter.dart';
+import '../../core/services/kurdistan_prayer_data.dart';
+import '../../core/services/prayer_times_service.dart';
 import '../../core/state/settings_state.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_typography.dart';
@@ -37,6 +39,13 @@ class SettingsScreen extends StatelessWidget {
                   child: Column(
                     children: <Widget>[
                       _SwitchRow(
+                        label: context.t('settings.prayerReminders'),
+                        subtitle: context.t('settings.prayerRemindersHint'),
+                        value: s.prayerNotificationsEnabled,
+                        onChanged: s.setPrayerNotificationsEnabled,
+                      ),
+                      const Divider(height: 1, color: AppColors.divider),
+                      _SwitchRow(
                         label: context.t('settings.hourlyReminders'),
                         subtitle: context.t('settings.hourlyRemindersHint'),
                         value: s.notificationsEnabled,
@@ -53,6 +62,35 @@ class SettingsScreen extends StatelessWidget {
                         subtitle: context.t('settings.silentHint'),
                         value: s.silentNotifications,
                         onChanged: s.setSilentNotifications,
+                      ),
+                      const Divider(height: 1, color: AppColors.divider),
+                      InkWell(
+                        onTap: () async {
+                          await s.sendTestNotification();
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(context.t('settings.testSent')),
+                              ),
+                            );
+                          }
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
+                          child: Row(
+                            children: <Widget>[
+                              const Icon(Icons.notifications_active_rounded,
+                                  color: AppColors.emeraldGlow, size: 20),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Text(context.t('settings.sendTest'),
+                                    style: AppTypography.bodyLarge),
+                              ),
+                              const Icon(Icons.chevron_right_rounded,
+                                  color: AppColors.textTertiary, size: 20),
+                            ],
+                          ),
+                        ),
                       ),
                     ],
                   ),
@@ -142,6 +180,8 @@ class SettingsScreen extends StatelessWidget {
                     ],
                   ),
                 ),
+                const SizedBox(height: 22),
+                const _PrayerTimesSection(),
                 const SizedBox(height: 22),
                 _Section(title: context.t('settings.language')),
                 _SettingsCard(
@@ -478,6 +518,265 @@ class _LanguageRow extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+/// Prayer-time calculation settings: method, Asr madhab, and per-prayer
+/// fine-tune offsets so the user can match their local mosque (e.g. بانگ).
+class _PrayerTimesSection extends StatelessWidget {
+  const _PrayerTimesSection();
+
+  @override
+  Widget build(BuildContext context) {
+    final SettingsState s = context.watch<SettingsState>();
+    final bool ar = s.isRtl;
+    final bool auto = s.prayerSource == 'auto';
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: <Widget>[
+        _Section(title: context.t('settings.prayerTimes')),
+        _SettingsCard(
+          child: Column(
+            children: <Widget>[
+              // Times source
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Text(context.t('settings.timesSource'),
+                        style: AppTypography.titleMedium),
+                    const SizedBox(height: 2),
+                    Text(context.t('settings.sourceAutoHint'),
+                        style: AppTypography.caption),
+                    const SizedBox(height: 12),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: <Widget>[
+                        _Chip(
+                          label: context.t('settings.sourceAuto'),
+                          selected: auto,
+                          onTap: () => s.setPrayerSource('auto'),
+                        ),
+                        _Chip(
+                          label: context.t('settings.sourceCalc'),
+                          selected: !auto,
+                          onTap: () => s.setPrayerSource('calc'),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              // City (Kurdistan schedule only)
+              if (auto) ...<Widget>[
+                const Divider(height: 1, color: AppColors.divider),
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Text(context.t('settings.city'),
+                          style: AppTypography.titleMedium),
+                      const SizedBox(height: 2),
+                      Text(context.t('settings.cityHint'),
+                          style: AppTypography.caption),
+                      const SizedBox(height: 12),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: <Widget>[
+                          _Chip(
+                            label: context.t('settings.cityAuto'),
+                            selected: s.prayerCity == 'auto',
+                            onTap: () => s.setPrayerCity('auto'),
+                          ),
+                          for (final KurdistanCity c
+                              in KurdistanPrayerData.cities)
+                            _Chip(
+                              label: ar ? c.ar : c.en,
+                              selected: s.prayerCity == c.id,
+                              onTap: () => s.setPrayerCity(c.id),
+                            ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+              const Divider(height: 1, color: AppColors.divider),
+              // Calculation method
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Text(context.t('settings.calcMethod'),
+                        style: AppTypography.titleMedium),
+                    const SizedBox(height: 2),
+                    Text(context.t('settings.calcMethodHint'),
+                        style: AppTypography.caption),
+                    const SizedBox(height: 12),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children:
+                          PrayerTimesService.methods.map((PrayerCalcMethod m) {
+                        return _Chip(
+                          label: m.name,
+                          selected: s.prayerMethod == m.id,
+                          onTap: () => s.setPrayerMethod(m.id),
+                        );
+                      }).toList(),
+                    ),
+                  ],
+                ),
+              ),
+              const Divider(height: 1, color: AppColors.divider),
+              // Asr madhab
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Text(context.t('settings.asrMadhab'),
+                        style: AppTypography.titleMedium),
+                    const SizedBox(height: 12),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: <Widget>[
+                        _Chip(
+                          label: context.t('settings.madhabStandard'),
+                          selected: s.prayerMadhab == 'shafi',
+                          onTap: () => s.setPrayerMadhab('shafi'),
+                        ),
+                        _Chip(
+                          label: context.t('settings.madhabHanafi'),
+                          selected: s.prayerMadhab == 'hanafi',
+                          onTap: () => s.setPrayerMadhab('hanafi'),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              const Divider(height: 1, color: AppColors.divider),
+              // Per-prayer fine-tune
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 14, 16, 6),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Text(context.t('settings.fineTune'),
+                        style: AppTypography.titleMedium),
+                    const SizedBox(height: 2),
+                    Text(context.t('settings.fineTuneHint'),
+                        style: AppTypography.caption),
+                  ],
+                ),
+              ),
+              for (final String k in PrayerTimesService.offsetKeys)
+                _OffsetRow(
+                  label: context.t('prayer.$k'),
+                  value: s.prayerOffset(k),
+                  suffix: context.t('settings.minutesShort'),
+                  onChanged: (int v) => s.setPrayerOffset(k, v),
+                ),
+              const SizedBox(height: 8),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// A rounded selectable chip used by the prayer-time pickers.
+class _Chip extends StatelessWidget {
+  const _Chip({
+    required this.label,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
+        decoration: BoxDecoration(
+          gradient: selected ? AppColors.emeraldGradient : null,
+          color: selected ? null : AppColors.surfaceMuted,
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Text(
+          label,
+          style: AppTypography.bodySmall.copyWith(
+            color: selected ? AppColors.background : AppColors.textSecondary,
+            fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// A signed ±minute stepper for nudging an individual prayer time.
+class _OffsetRow extends StatelessWidget {
+  const _OffsetRow({
+    required this.label,
+    required this.value,
+    required this.suffix,
+    required this.onChanged,
+  });
+
+  final String label;
+  final int value;
+  final String suffix;
+  final ValueChanged<int> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final String display = value == 0
+        ? '0'
+        : (value > 0 ? '+$value $suffix' : '$value $suffix');
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 2, 10, 2),
+      child: Row(
+        children: <Widget>[
+          Expanded(child: Text(label, style: AppTypography.bodyLarge)),
+          IconButton(
+            onPressed: value > -30 ? () => onChanged(value - 1) : null,
+            icon: const Icon(Icons.remove_rounded),
+            color: AppColors.emeraldGlow,
+          ),
+          SizedBox(
+            width: 64,
+            child: Text(
+              display,
+              textAlign: TextAlign.center,
+              style: AppTypography.bodyMedium.copyWith(
+                color: value == 0 ? AppColors.textSecondary : AppColors.gold,
+                fontWeight: value == 0 ? FontWeight.w400 : FontWeight.w600,
+              ),
+            ),
+          ),
+          IconButton(
+            onPressed: value < 30 ? () => onChanged(value + 1) : null,
+            icon: const Icon(Icons.add_rounded),
+            color: AppColors.emeraldGlow,
+          ),
+        ],
       ),
     );
   }

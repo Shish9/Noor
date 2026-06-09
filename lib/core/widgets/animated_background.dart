@@ -70,18 +70,20 @@ class _AnimatedBackgroundState extends State<AnimatedBackground>
               decoration: BoxDecoration(gradient: AppColors.ambientGlow),
               child: SizedBox.expand(),
             ),
-            AnimatedBuilder(
-              animation: _controller,
-              builder: (BuildContext _, Widget? __) {
-                return CustomPaint(
-                  painter: _ParticlePainter(
-                    particles: _particles,
-                    t: _controller.value,
-                    intensity: widget.intensity,
-                  ),
-                  size: Size.infinite,
-                );
-              },
+            RepaintBoundary(
+              child: AnimatedBuilder(
+                animation: _controller,
+                builder: (BuildContext _, Widget? __) {
+                  return CustomPaint(
+                    painter: _ParticlePainter(
+                      particles: _particles,
+                      t: _controller.value,
+                      intensity: widget.intensity,
+                    ),
+                    size: Size.infinite,
+                  );
+                },
+              ),
             ),
           ],
         ),
@@ -129,14 +131,15 @@ class _ParticlePainter extends CustomPainter {
       final double alphaPulse =
           0.02 + (math.sin((t + p.seed) * 2 * math.pi) + 1) * 0.02;
 
+      // No MaskFilter blur here: the radial gradient already fades to fully
+      // transparent, so an extra (expensive, per-frame) blur pass is wasted.
       final Paint paint = Paint()
         ..shader = RadialGradient(
           colors: <Color>[
             AppColors.gold.withValues(alpha: alphaPulse * intensity),
             AppColors.gold.withValues(alpha: 0),
           ],
-        ).createShader(Rect.fromCircle(center: Offset(x, y), radius: p.radius))
-        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 12);
+        ).createShader(Rect.fromCircle(center: Offset(x, y), radius: p.radius));
 
       canvas.drawCircle(Offset(x, y), p.radius, paint);
     }

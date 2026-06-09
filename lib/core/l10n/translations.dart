@@ -162,6 +162,71 @@ class Translations {
       AppLanguage.english: 'Language changed to English',
       AppLanguage.arabic: 'تم تغيير اللغة إلى العربية',
     },
+    'settings.prayerTimes': <AppLanguage, String>{
+      AppLanguage.english: 'Prayer times',
+      AppLanguage.arabic: 'أوقات الصلاة',
+    },
+    'settings.timesSource': <AppLanguage, String>{
+      AppLanguage.english: 'Times source',
+      AppLanguage.arabic: 'مصدر الأوقات',
+    },
+    'settings.sourceAuto': <AppLanguage, String>{
+      AppLanguage.english: 'Kurdistan official',
+      AppLanguage.arabic: 'كردستان الرسمي',
+    },
+    'settings.sourceCalc': <AppLanguage, String>{
+      AppLanguage.english: 'Calculated',
+      AppLanguage.arabic: 'محسوب',
+    },
+    'settings.sourceAutoHint': <AppLanguage, String>{
+      AppLanguage.english:
+          'Official mosque schedule inside Kurdistan; calculated elsewhere',
+      AppLanguage.arabic: 'جدول المسجد الرسمي داخل كردستان، ومحسوب في غيرها',
+    },
+    'settings.city': <AppLanguage, String>{
+      AppLanguage.english: 'City',
+      AppLanguage.arabic: 'المدينة',
+    },
+    'settings.cityAuto': <AppLanguage, String>{
+      AppLanguage.english: 'Auto-detect',
+      AppLanguage.arabic: 'تلقائي',
+    },
+    'settings.cityHint': <AppLanguage, String>{
+      AppLanguage.english: 'Pick your city to match its mosque schedule',
+      AppLanguage.arabic: 'اختر مدينتك لمطابقة جدول مسجدها',
+    },
+    'settings.calcMethod': <AppLanguage, String>{
+      AppLanguage.english: 'Calculation method',
+      AppLanguage.arabic: 'طريقة الحساب',
+    },
+    'settings.calcMethodHint': <AppLanguage, String>{
+      AppLanguage.english: 'Used for Calculated mode and outside Kurdistan',
+      AppLanguage.arabic: 'يُستخدم للوضع المحسوب وخارج كردستان',
+    },
+    'settings.asrMadhab': <AppLanguage, String>{
+      AppLanguage.english: 'Asr calculation',
+      AppLanguage.arabic: 'حساب العصر',
+    },
+    'settings.madhabStandard': <AppLanguage, String>{
+      AppLanguage.english: 'Standard (Shafi’i)',
+      AppLanguage.arabic: 'الافتراضي (شافعي)',
+    },
+    'settings.madhabHanafi': <AppLanguage, String>{
+      AppLanguage.english: 'Hanafi',
+      AppLanguage.arabic: 'حنفي',
+    },
+    'settings.fineTune': <AppLanguage, String>{
+      AppLanguage.english: 'Fine-tune (minutes)',
+      AppLanguage.arabic: 'ضبط دقيق (بالدقائق)',
+    },
+    'settings.fineTuneHint': <AppLanguage, String>{
+      AppLanguage.english: 'Nudge each prayer to exactly match your mosque',
+      AppLanguage.arabic: 'اضبط كل صلاة لتطابق مسجدك تمامًا',
+    },
+    'settings.minutesShort': <AppLanguage, String>{
+      AppLanguage.english: 'min',
+      AppLanguage.arabic: 'د',
+    },
 
     // ─────────────── Profile ───────────────
     'profile.preferences': <AppLanguage, String>{
@@ -274,6 +339,22 @@ class Translations {
     'settings.silentHint': <AppLanguage, String>{
       AppLanguage.english: 'Notifications without sound or vibration',
       AppLanguage.arabic: 'إشعارات بدون صوت أو اهتزاز',
+    },
+    'settings.prayerReminders': <AppLanguage, String>{
+      AppLanguage.english: 'Prayer time reminders',
+      AppLanguage.arabic: 'تنبيهات أوقات الصلاة',
+    },
+    'settings.prayerRemindersHint': <AppLanguage, String>{
+      AppLanguage.english: 'Get notified at the start of each prayer',
+      AppLanguage.arabic: 'تنبيه عند دخول وقت كل صلاة',
+    },
+    'settings.sendTest': <AppLanguage, String>{
+      AppLanguage.english: 'Send a test notification',
+      AppLanguage.arabic: 'إرسال إشعار تجريبي',
+    },
+    'settings.testSent': <AppLanguage, String>{
+      AppLanguage.english: 'Test notification sent',
+      AppLanguage.arabic: 'تم إرسال الإشعار التجريبي',
     },
     'settings.fontSize': <AppLanguage, String>{
       AppLanguage.english: 'Arabic font size',
@@ -776,6 +857,26 @@ class Translations {
     'qibla.offset': <AppLanguage, String>{
       AppLanguage.english: 'MAGNETIC OFFSET',
       AppLanguage.arabic: 'انحراف مغناطيسي',
+    },
+    'qibla.bearing': <AppLanguage, String>{
+      AppLanguage.english: 'BEARING',
+      AppLanguage.arabic: 'الزاوية',
+    },
+    'qibla.aligned': <AppLanguage, String>{
+      AppLanguage.english: 'Aligned — facing the Qibla',
+      AppLanguage.arabic: 'محاذٍ — أنت تواجه القبلة',
+    },
+    'qibla.turnRight': <AppLanguage, String>{
+      AppLanguage.english: 'Turn right',
+      AppLanguage.arabic: 'استدر يمينًا',
+    },
+    'qibla.turnLeft': <AppLanguage, String>{
+      AppLanguage.english: 'Turn left',
+      AppLanguage.arabic: 'استدر يسارًا',
+    },
+    'qibla.noSensor': <AppLanguage, String>{
+      AppLanguage.english: 'Compass sensor unavailable on this device',
+      AppLanguage.arabic: 'مستشعر البوصلة غير متوفر على هذا الجهاز',
     },
 
     // Prayer names

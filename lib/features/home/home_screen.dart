@@ -9,6 +9,7 @@ import '../../core/l10n/format_helpers.dart';
 import '../../core/l10n/translations.dart';
 import '../../core/models/dua.dart';
 import '../../core/models/surah.dart';
+import '../../core/services/notification_service.dart';
 import '../../core/services/prayer_times_service.dart';
 import '../../core/state/app_state.dart';
 import '../../core/state/quran_state.dart';
@@ -146,6 +147,7 @@ class _NextPrayerHeroState extends State<_NextPrayerHero> {
   ];
 
   List<_Prayer> _prayers = _defaultPrayers;
+  String? _lastConfigKey;
 
   @override
   void initState() {
@@ -169,6 +171,9 @@ class _NextPrayerHeroState extends State<_NextPrayerHero> {
           _Prayer('Isha', 'العشاء', t.timeFor('Isha'), 'prayer.isha'),
         ];
       });
+      // Schedule prayer + dua notifications now that real coordinates are
+      // cached (runs once per launch).
+      await NotificationService.instance.ensureScheduled();
     } catch (_) {}
   }
 
@@ -203,6 +208,16 @@ class _NextPrayerHeroState extends State<_NextPrayerHero> {
 
   @override
   Widget build(BuildContext context) {
+    // Reload times when any prayer-time setting changes.
+    final String cfg = context.watch<SettingsState>().prayerConfigKey;
+    if (_lastConfigKey == null) {
+      _lastConfigKey = cfg;
+    } else if (_lastConfigKey != cfg) {
+      _lastConfigKey = cfg;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _loadTimes();
+      });
+    }
     final int currentIdx = _currentIndex();
     final _Prayer next = _next();
 
